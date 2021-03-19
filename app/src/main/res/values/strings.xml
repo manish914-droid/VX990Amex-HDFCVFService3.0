@@ -390,6 +390,7 @@
     <string name="enter_serial_number">Enter Serial Number</string>
     <string name="enter_valid_imei_number">Enter a Valid IMEI Number</string>
     <string name="enter_valid_serial_number">Enter a Valid Serial Number</string>
+    <string name="please_select_product">Please Select Product</string>
 
 
 </resources>

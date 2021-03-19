@@ -90,7 +90,10 @@ class BrandEMIProductFragment : Fragment() {
 
         //OnClick Event of Floating Action Button:-
         binding?.brandEmiProductFloatingButton?.setOnClickListener {
-            navigateToInputAmountFragment()
+            if (selectedProductUpdatedPosition > -1)
+                navigateToInputAmountFragment()
+            else
+                VFService.showToast(getString(R.string.please_select_product))
         }
 
         Log.d("BrandDataModal:- ", Gson().toJson(brandEMIDataModal))
@@ -328,7 +331,7 @@ internal class BrandEMIProductAdapter(
 
         //region==========================Checked Particular Row of RecyclerView Logic:-
         if (index === position) {
-            holder.binding.cardView.strokeColor = Color.parseColor("#13E113")
+            holder.binding.cardView.strokeColor = Color.parseColor("#683992")
             holder.binding.productCheckIv.visibility = View.VISIBLE
             onProductSelect(position)
         } else {

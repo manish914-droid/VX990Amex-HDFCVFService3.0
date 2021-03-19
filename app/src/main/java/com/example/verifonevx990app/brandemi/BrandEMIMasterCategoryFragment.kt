@@ -24,6 +24,7 @@ import com.example.verifonevx990app.realmtables.BrandEMIMasterTimeStamps
 import com.example.verifonevx990app.realmtables.BrandTAndCTable
 import com.example.verifonevx990app.realmtables.IssuerTAndCTable
 import com.example.verifonevx990app.vxUtils.*
+import com.google.gson.Gson
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
@@ -83,6 +84,11 @@ class BrandEMIMasterCategoryFragment : Fragment() {
         //Initial SetUp of RecyclerView List with Empty Data , After Fetching Data from Host we will notify List:-
         setUpRecyclerView()
         brandEmiMasterDataList.clear()
+
+        val issuerTAndCData = runBlocking(Dispatchers.IO) {
+            IssuerTAndCTable.getAllIssuerTAndCData()
+        }
+        Log.d("IssuerTC:- ", Gson().toJson(issuerTAndCData))
 
         //Method to Fetch BrandEMIMasterData:-
         fetchBrandEMIMasterDataFromHost()

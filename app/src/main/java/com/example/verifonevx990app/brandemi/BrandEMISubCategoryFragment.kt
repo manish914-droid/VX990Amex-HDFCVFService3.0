@@ -36,7 +36,8 @@ Fragment Page and Displaying on UI:-
 class BrandEMISubCategoryFragment : Fragment() {
     private var binding: FragmentBrandEmiSubCategoryBinding? = null
     private var iDialog: IDialog? = null
-    private val brandEmiMasterSubCategoryDataList by lazy { mutableListOf<BrandEMIMasterSubCategoryDataModal>() }
+    private var brandEmiMasterSubCategoryDataList =
+        mutableListOf<BrandEMIMasterSubCategoryDataModal>()
     private val action by lazy { arguments?.getSerializable("type") ?: "" }
     private var brandEMIDataModal: BrandEMIDataModal? = null
     private var field57RequestData: String? = null
@@ -188,12 +189,14 @@ class BrandEMISubCategoryFragment : Fragment() {
                     }
 
                     //Notify RecyclerView DataList on UI with Category Data that has ParentCategoryID == 0 && BrandID = selected brandID :-
-                    val data = brandEmiMasterSubCategoryDataList.filter {
+                    brandEmiMasterSubCategoryDataList = brandEmiMasterSubCategoryDataList.filter {
                         it.parentCategoryID == "0" && it.brandID == brandEMIDataModal?.getBrandID()
                     }
                             as MutableList<BrandEMIMasterSubCategoryDataModal>
-                    if (data.isNotEmpty()) {
-                        brandEMIMasterSubCategoryAdapter.refreshAdapterList(data)
+                    if (brandEmiMasterSubCategoryDataList.isNotEmpty()) {
+                        brandEMIMasterSubCategoryAdapter.refreshAdapterList(
+                            brandEmiMasterSubCategoryDataList
+                        )
                     }
 
                     //Refresh Field57 request value for Pagination if More Record Flag is True:-
@@ -206,7 +209,7 @@ class BrandEMISubCategoryFragment : Fragment() {
                         Log.d("FullDataList:- ", brandEmiMasterSubCategoryDataList.toString())
                     } else {
                         iDialog?.hideProgress()
-                        if (data.isEmpty()) {
+                        if (brandEmiMasterSubCategoryDataList.isEmpty()) {
                             navigateToProductPage(isSubCategoryItem = false, -1)
                         }
                     }
@@ -214,10 +217,10 @@ class BrandEMISubCategoryFragment : Fragment() {
             } else {
                 GlobalScope.launch(Dispatchers.Main) {
                     iDialog?.hideProgress()
-                    iDialog?.alertBoxWithAction(null, null,
-                        getString(R.string.error), hostMsg,
-                        false, getString(R.string.positive_button_ok),
-                        {}, {})
+                    /* iDialog?.alertBoxWithAction(null, null,
+                         getString(R.string.error), hostMsg,
+                         false, getString(R.string.positive_button_ok),
+                         {}, {})*/
                 }
             }
         }

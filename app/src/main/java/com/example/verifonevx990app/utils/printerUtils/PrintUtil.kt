@@ -2724,25 +2724,27 @@ class PrintUtil(context: Context?) {
                 alignLeftRightText(textInLineFormatBundle, "ROI(p.a)", rateOfInterest, ": ")
             }
 
-            alignLeftRightText(textInLineFormatBundle, "TENURE", printerReceiptData.tenure, ": ")
+            alignLeftRightText(
+                textInLineFormatBundle,
+                "TENURE",
+                "${printerReceiptData.tenure} Months",
+                ": "
+            )
 
             //region=============CashBack CalculatedValue====================
             if (!TextUtils.isEmpty(printerReceiptData.cashBackCalculatedValue)) {
-                val cashBackAmount =
-                    "%.2f".format(printerReceiptData.cashBackCalculatedValue.toFloat() / 100)
                 alignLeftRightText(
                     textInLineFormatBundle,
                     "CASHBACK ",
-                    cashBackAmount,
+                    printerReceiptData.cashBackCalculatedValue,
                     ":  $currencySymbol "
                 )
             }
             //endregion
 
             //region=============Total Discount CalculatedValue====================
-            if (!TextUtils.isEmpty(printerReceiptData.discountCalculatedValue)) {
-                val cashBackAmount =
-                    "%.2f".format(printerReceiptData.discountCalculatedValue.toFloat() / 100)
+            if (!TextUtils.isEmpty(printerReceiptData.cashback) && printerReceiptData.cashback != "0") {
+                val cashBackAmount = "%.2f".format(printerReceiptData.cashback.toFloat() / 100)
                 alignLeftRightText(
                     textInLineFormatBundle,
                     "TOTAL CASHBACK ",
@@ -2752,7 +2754,7 @@ class PrintUtil(context: Context?) {
             }
             //endregion
 
-            if (!TextUtils.isEmpty(printerReceiptData.cashDiscountAmt)) {
+            if (!TextUtils.isEmpty(printerReceiptData.cashDiscountAmt) && printerReceiptData.cashDiscountAmt != "0") {
                 val discAmount = "%.2f".format(printerReceiptData.cashDiscountAmt.toFloat() / 100)
                 alignLeftRightText(
                     textInLineFormatBundle,
@@ -2760,10 +2762,13 @@ class PrintUtil(context: Context?) {
                     discAmount,
                     ":  $currencySymbol "
                 )
+            }
+
+            if (!TextUtils.isEmpty(printerReceiptData.discountCalculatedValue)) {
                 alignLeftRightText(
                     textInLineFormatBundle,
                     "TOTAL DISCOUNT ",
-                    discAmount,
+                    printerReceiptData.discountCalculatedValue,
                     ":  $currencySymbol "
                 )
             }
