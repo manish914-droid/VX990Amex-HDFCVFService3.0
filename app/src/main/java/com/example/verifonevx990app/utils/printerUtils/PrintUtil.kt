@@ -2731,11 +2731,29 @@ class PrintUtil(context: Context?) {
                 ": "
             )
 
+            var cashBackPercentHeadingText = ""
+            var cashBackAmountHeadingText = ""
+
+            when (printerReceiptData.issuerId) {
+                "52" -> {
+                    cashBackPercentHeadingText = "Mfg/Merch Cashback"
+                    cashBackAmountHeadingText = "Mfg/Merch Cashback Amt"
+                }
+                "55" -> {
+                    cashBackPercentHeadingText = "Merch/Mfr Cashback"
+                    cashBackAmountHeadingText = "Merch/Mfr Cashback Amt"
+                }
+                else -> {
+                    cashBackPercentHeadingText = "CASH BACK"
+                    cashBackAmountHeadingText = "TOTAL CASH BACK"
+                }
+            }
+
             //region=============CashBack CalculatedValue====================
             if (!TextUtils.isEmpty(printerReceiptData.cashBackCalculatedValue)) {
                 alignLeftRightText(
                     textInLineFormatBundle,
-                    "CASHBACK ",
+                    cashBackPercentHeadingText,
                     printerReceiptData.cashBackCalculatedValue,
                     ":  $currencySymbol "
                 )
@@ -2747,19 +2765,39 @@ class PrintUtil(context: Context?) {
                 val cashBackAmount = "%.2f".format(printerReceiptData.cashback.toFloat() / 100)
                 alignLeftRightText(
                     textInLineFormatBundle,
-                    "TOTAL CASHBACK ",
+                    cashBackAmountHeadingText,
                     cashBackAmount,
                     ":  $currencySymbol "
                 )
             }
             //endregion
 
+            var discountPercentHeadingText = ""
+            var discountAmountHeadingText = ""
+
+            when (printerReceiptData.issuerId) {
+                "52" -> {
+                    discountPercentHeadingText = "Mfg/Merch Cashback"
+                    discountAmountHeadingText = "Mfg/Merch Cashback Amt"
+                }
+
+                "55" -> {
+                    discountPercentHeadingText = "Merch/Mfr Cashback"
+                    discountAmountHeadingText = "Merch/Mfr Cashback Amt"
+                }
+
+                else -> {
+                    discountPercentHeadingText = "DISCOUNT"
+                    discountAmountHeadingText = "TOTAL DISCOUNT"
+                }
+            }
+
             if (!TextUtils.isEmpty(printerReceiptData.cashDiscountAmt) && printerReceiptData.cashDiscountAmt != "0") {
                 val discAmount = "%.2f".format(printerReceiptData.cashDiscountAmt.toFloat() / 100)
                 alignLeftRightText(
                     textInLineFormatBundle,
                     "DISCOUNT ",
-                    discAmount,
+                    discountPercentHeadingText,
                     ":  $currencySymbol "
                 )
             }
@@ -2767,7 +2805,7 @@ class PrintUtil(context: Context?) {
             if (!TextUtils.isEmpty(printerReceiptData.discountCalculatedValue)) {
                 alignLeftRightText(
                     textInLineFormatBundle,
-                    "TOTAL DISCOUNT ",
+                    discountAmountHeadingText,
                     printerReceiptData.discountCalculatedValue,
                     ":  $currencySymbol "
                 )

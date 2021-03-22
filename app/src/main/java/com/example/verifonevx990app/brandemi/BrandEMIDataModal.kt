@@ -15,6 +15,8 @@ class BrandEMIDataModal : Serializable {
     private var validationTypeName: String? = null
     private var isRequired: String? = null
     private var inputDataType: String? = null
+    private var minLength: String? = null
+    private var maxLength: String? = null
 
     fun setBrandID(brID: String) {
         this.brandID = brID
@@ -110,5 +112,21 @@ class BrandEMIDataModal : Serializable {
 
     fun getInputDataType(): String? {
         return inputDataType
+    }
+
+    fun setMinLength(length: String) {
+        this.minLength = length
+    }
+
+    fun getMinLength(): String? {
+        return minLength
+    }
+
+    fun setMaxLength(length: String) {
+        this.maxLength = length
+    }
+
+    fun getMaxLength(): String? {
+        return maxLength
     }
 }

@@ -88,6 +88,7 @@ class BrandEMISubCategoryFragment : Fragment() {
     //region===============================Hit Host to Fetch BrandEMIMasterSubCategory Data:-
     private fun fetchBrandEMIMasterSubCategoryDataFromHost() {
         iDialog?.showProgress()
+        Log.d("BrandEMISubCategory:- ", field57RequestData.toString())
         var brandEMIMasterSubCategoryISOData: IsoDataWriter? = null
         //region==============================Creating ISO Packet For BrandEMIMasterSubCategoryData Request:-
         runBlocking(Dispatchers.IO) {
@@ -189,6 +190,8 @@ class BrandEMISubCategoryFragment : Fragment() {
                     }
 
                     //Notify RecyclerView DataList on UI with Category Data that has ParentCategoryID == 0 && BrandID = selected brandID :-
+                    val totalDataList = brandEmiMasterSubCategoryDataList
+                    Log.d("TotalDataList:- ", Gson().toJson(totalDataList))
                     brandEmiMasterSubCategoryDataList = brandEmiMasterSubCategoryDataList.filter {
                         it.parentCategoryID == "0" && it.brandID == brandEMIDataModal?.getBrandID()
                     }

@@ -2272,6 +2272,14 @@ enum class EMIRequestType(var requestType: String) {
 }
 //endregion
 
+//region====================ENUM For Issuer ID:-
+enum class IssuerID(var id: String) {
+    HDFC_ISSUER_ID("50"),
+    SBI_ISSUER_ID("52"),
+    ICICI_ISSUER_ID("55")
+}
+//endregion
+
 interface IFragmentRequest {
     fun onFragmentRequest(
         action: UiAction,

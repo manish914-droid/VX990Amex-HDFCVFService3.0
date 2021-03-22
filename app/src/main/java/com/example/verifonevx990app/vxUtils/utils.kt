@@ -1628,6 +1628,25 @@ fun showIMEISerialDialog(
     }
     //endregion
 
+    //region======================Setting Min and Max Length:-
+    when (brandEMIDataModal?.getValidationTypeName()) {
+        "IMEI", "imei" -> {
+            imeiNumber?.filters = arrayOf<InputFilter>(
+                InputFilter.LengthFilter(
+                    brandEMIDataModal.getMaxLength()?.toInt() ?: 16
+                )
+            )
+        }
+        "Serial Number", "serial number" -> {
+            serialNumber?.filters = arrayOf<InputFilter>(
+                InputFilter.LengthFilter(
+                    brandEMIDataModal.getMaxLength()?.toInt() ?: 20
+                )
+            )
+        }
+    }
+    //endregion
+
     cancelButton?.setOnClickListener {
         dialog.dismiss()
         dialogCB(Triple("", "", false))
@@ -1636,20 +1655,40 @@ fun showIMEISerialDialog(
     okButton?.setOnClickListener {
         when (brandEMIDataModal?.getValidationTypeName()) {
             "IMEI", "imei" -> {
-                if (TextUtils.isEmpty(imeiNumber?.text)) {
-                    VFService.showToast(context.getString(R.string.enter_valid_imei_number))
-                } else {
-                    dialog.dismiss()
-                    dialogCB(Triple(imeiNumber?.text?.toString() ?: "", "", third = true))
+                when {
+                    TextUtils.isEmpty(imeiNumber?.text) -> {
+                        VFService.showToast(context.getString(R.string.enter_valid_imei_number))
+                    }
+                    imeiNumber?.text?.length ?: 0 < brandEMIDataModal.getMinLength()
+                        ?.toInt() ?: 0 -> {
+                        VFService.showToast(
+                            "Please Enter IMEI Number Length between ${brandEMIDataModal.getMinLength() ?: "0"} to " +
+                                    (brandEMIDataModal.getMaxLength() ?: "16")
+                        )
+                    }
+                    else -> {
+                        dialog.dismiss()
+                        dialogCB(Triple(imeiNumber?.text?.toString() ?: "", "", third = true))
+                    }
                 }
             }
 
             "Serial Number", "serial number" -> {
-                if (TextUtils.isEmpty(serialNumber?.text)) {
-                    VFService.showToast(context.getString(R.string.enter_valid_serial_number))
-                } else {
-                    dialog.dismiss()
-                    dialogCB(Triple("", serialNumber?.text?.toString() ?: "", third = true))
+                when {
+                    TextUtils.isEmpty(serialNumber?.text) -> {
+                        VFService.showToast(context.getString(R.string.enter_valid_serial_number))
+                    }
+                    serialNumber?.text?.length ?: 0 < brandEMIDataModal.getMinLength()
+                        ?.toInt() ?: 0 -> {
+                        VFService.showToast(
+                            "Please Enter Serial Number Length between ${brandEMIDataModal.getMinLength() ?: "0"} to " +
+                                    (brandEMIDataModal.getMaxLength() ?: "20")
+                        )
+                    }
+                    else -> {
+                        dialog.dismiss()
+                        dialogCB(Triple("", serialNumber?.text?.toString() ?: "", third = true))
+                    }
                 }
             }
 

@@ -109,6 +109,8 @@ class BrandEMIProductFragment : Fragment() {
                 brandEMIDataModal?.setValidationTypeName(brandEmiProductDataList[selectedProductUpdatedPosition].validationTypeName)
                 brandEMIDataModal?.setIsRequired(brandEmiProductDataList[selectedProductUpdatedPosition].isRequired)
                 brandEMIDataModal?.setInputDataType(brandEmiProductDataList[selectedProductUpdatedPosition].inputDataType)
+                brandEMIDataModal?.setMinLength(brandEmiProductDataList[selectedProductUpdatedPosition].minLength)
+                brandEMIDataModal?.setMaxLength(brandEmiProductDataList[selectedProductUpdatedPosition].maxLength)
             }
             //endregion
             (activity as MainActivity).transactFragment(NewInputAmountFragment().apply {
