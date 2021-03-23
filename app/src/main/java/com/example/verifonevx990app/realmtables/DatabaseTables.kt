@@ -1645,7 +1645,6 @@ open class TerminalParameterTable() : RealmObject(), Parcelable {
     @field:BHFieldParseIndex(0)
     var pcNO: String = ""
 
-
     @field:BHFieldParseIndex(1)
     var actionId: String = ""
 
@@ -1799,24 +1798,17 @@ open class TerminalParameterTable() : RealmObject(), Parcelable {
     @field:BHDashboardItem(EDashboardItem.VOID_REFUND)
     var voidRefund: String = ""
 
-
     @field:BHFieldParseIndex(39)
     @field:BHFieldName("Pre Auth")
-    @field:BHDashboardItem(
-        EDashboardItem.PREAUTH,
-        EDashboardItem.PREAUTH_COMPLETE
-    )
+    @field:BHDashboardItem(EDashboardItem.PREAUTH, EDashboardItem.PREAUTH_COMPLETE)
     var preAuth: String = ""
 
     @field:BHFieldParseIndex(31)
     var maxAmtEntryDigits: String = ""
 
-
     @field:BHFieldParseIndex(40)
     @field:BHFieldName("Bank Emi")
-    @field:BHDashboardItem(
-        EDashboardItem.BANK_EMI
-    )
+    @field:BHDashboardItem(EDashboardItem.BANK_EMI)
     var bankEmi: String = ""
 
     @field:BHFieldParseIndex(41)
@@ -1824,6 +1816,8 @@ open class TerminalParameterTable() : RealmObject(), Parcelable {
     @field:BHDashboardItem(EDashboardItem.BRAND_EMI)
     var brandEmi: String = ""
 
+    @field:BHFieldName("Brand Emi By Access Code")
+    @field:BHDashboardItem(EDashboardItem.EMI_PRO)
     @field:BHFieldParseIndex(42)
     var emiPro: String = ""
 
@@ -4265,8 +4259,8 @@ enum class EDashboardItem(
     PRE_AUTH_CATAGORY("Pre-Auth", R.drawable.ic_preauth, 9),
     MORE("View More", R.drawable.ic_arrow_down, 999),
     MERCHANT_PROMO("Merchant Promo", R.drawable.ic_cash_advance, 15),
+    EMI_PRO("Brand EMI By Access Code", R.drawable.ic_emi, 16),
     LESS("View Less", R.drawable.ic_arrow_up, 888);
-
 }
 
 //region========================push bill table for sms pay=======================

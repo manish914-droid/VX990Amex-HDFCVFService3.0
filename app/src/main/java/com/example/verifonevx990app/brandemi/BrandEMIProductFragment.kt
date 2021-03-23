@@ -42,7 +42,10 @@ class BrandEMIProductFragment : Fragment() {
     private var totalRecord: String? = "0"
     private var perPageRecord: String? = "0"
     private val brandEMIMasterSubCategoryAdapter by lazy {
-        BrandEMIProductAdapter(brandEmiProductDataList, ::onProductSelected)
+        BrandEMIProductAdapter(
+            brandEmiProductDataList,
+            ::onProductSelected
+        )
     }
 
     override fun onAttach(context: Context) {

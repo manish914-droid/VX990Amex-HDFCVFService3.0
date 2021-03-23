@@ -33,6 +33,7 @@ import com.example.verifonevx990app.appupdate.*
 import com.example.verifonevx990app.bankEmiEnquiry.IssuerListFragment
 import com.example.verifonevx990app.bankemi.GenericEMIIssuerTAndC
 import com.example.verifonevx990app.brandemi.BrandEMIMasterCategoryFragment
+import com.example.verifonevx990app.brandemibyaccesscode.BrandEMIByAccessCodeFragment
 import com.example.verifonevx990app.crosssell.HDFCCrossSellFragment
 import com.example.verifonevx990app.databinding.ActivityMainBinding
 import com.example.verifonevx990app.databinding.AuthCatogoryDialogBinding
@@ -1382,6 +1383,22 @@ class MainActivity : BaseActivity(), IFragmentRequest,
                 }
             }
 
+            EDashboardItem.EMI_PRO -> {
+                if (checkInternetConnection()) {
+                    transactFragment(BrandEMIByAccessCodeFragment().apply {
+                        arguments = Bundle().apply {
+                            putSerializable("type", action)
+                            putString(
+                                INPUT_SUB_HEADING,
+                                SubHeaderTitle.Brand_EMI_BY_ACCESS_CODE.title
+                            )
+                        }
+                    })
+                } else {
+                    VFService.showToast(getString(R.string.no_internet_available_please_check_your_internet))
+                }
+            }
+
             else -> showToast("To be implemented...")
         }
     }
@@ -2102,6 +2119,7 @@ enum class SubHeaderTitle(val title: String) {
     Brand_EMI_Master_Category("Brand EMI Master Category"),
     Brand_EMI_SUB_Category("Brand EMI Sub Category"),
     Brand_EMI("Brand EMI Sale"),
+    Brand_EMI_BY_ACCESS_CODE("Brand EMI By Access Code"),
 }
 
 //Below Enum Class is used for Preference Save [String , Int and Boolean] Keys Constant:-
@@ -2269,6 +2287,7 @@ enum class EMIRequestType(var requestType: String) {
     BRAND_T_AND_C("6"),
     BRAND_SUB_CATEGORY("2"),
     BRAND_EMI_Product("3"),
+    BRAND_EMI_BY_ACCESS_CODE("7")
 }
 //endregion
 
