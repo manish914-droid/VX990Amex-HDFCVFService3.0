@@ -28,7 +28,7 @@ class SendAppUpdateConfirmationPacket : IAppUpdateConfirmationPacketExchange {
             addFieldByHex(41, terminalData.terminalId)
 
             //Connection Time Stamps Field 48
-            addFieldByHex(48, ConnectionTimeStamps.getStamp())
+           addFieldByHex(48, Field48ResponseTimestamp.getF48Data())
 
             //adding Field 61
             val version = addPad(getAppVersionNameAndRevisionID(), "0", 15, false)

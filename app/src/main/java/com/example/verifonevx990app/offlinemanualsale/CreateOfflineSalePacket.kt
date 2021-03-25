@@ -45,7 +45,7 @@ class CreateOfflineSalePacket(private var offlineBatchTableData: BatchFileDataTa
             addFieldByHex(42, terminalData.merchantId)
 
             //Connection Time Stamps Field 48
-            addFieldByHex(48, ConnectionTimeStamps.getStamp())
+           addFieldByHex(48, Field48ResponseTimestamp.getF48Data())
 
             //adding Field 57 for Offline Sale
             addField(57, offlineBatchTableData.track2Data)

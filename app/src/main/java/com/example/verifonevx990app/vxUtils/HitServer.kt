@@ -39,7 +39,7 @@ object HitServer {
             }
             Log.d("OpenSocket:- " , "Socket Start")
             logger("Connection Details:- ", VFService.getIpPort().toString(), "d")
-                var responseStr : String? = null
+               // var responseStr : String? = null
             openSocket { socket ->
             //    try {
                     irh?.saveReversal()
@@ -49,28 +49,36 @@ object HitServer {
                     //println("Data send" + data.byteArr2HexStr())
                     logger(TAG, "Data Send = ${data.byteArr2HexStr()}")
                     ConnectionTimeStamps.startTransaction = getF48TimeStamp()
-                    val sos = socket.getOutputStream()
-                    sos?.write(data)
-                    sos.flush()
+                val sos = socket.getOutputStream()
+                sos?.write(data)
+                sos.flush()
 
-                    progressMsg("Please wait receiving data from Bonushub server")
-                    val dis = DataInputStream(socket.getInputStream())
-                    val len = dis.readShort().toInt()
-                    val response = ByteArray(len)
-                    dis.readFully(response)
-                    ConnectionTimeStamps.recieveTransaction = getF48TimeStamp()
-                     responseStr = response.byteArr2HexStr()
-                    //println("Data Recieve" + response.byteArr2HexStr())
-                    logger(TAG, "len=$len, data = $responseStr")
+                progressMsg("Please wait receiving data from Bonushub server")
+                val dis = DataInputStream(socket.getInputStream())
+                val len = dis.readShort().toInt()
+                val response = ByteArray(len)
+                dis.readFully(response)
+                ConnectionTimeStamps.recieveTransaction = getF48TimeStamp()
 
-                    socket.close()
+                //   ConnectionTimeStamps.recieveTransaction = getF48TimeStamp()
+
+                val responseStr = response.byteArr2HexStr()
+                val reader = readIso(responseStr, false)
+                Field48ResponseTimestamp.saveF48IdentifierAndTxnDate(
+                    reader.isoMap[48]?.parseRaw2String() ?: ""
+                )
+
+                //println("Data Recieve" + response.byteArr2HexStr())
+                logger(TAG, "len=$len, data = $responseStr")
+
+                socket.close()
 
                 //    }
-        //        catch (ex: Exception) {
-           //         ex.printStackTrace()
-             //       callback(responseStr ?: "", true)
+                //        catch (ex: Exception) {
+                //         ex.printStackTrace()
+                //       callback(responseStr ?: "", true)
             //    }
-                callback(responseStr ?: "", true)
+                callback(responseStr, true)
                     this@HitServer.callback = null
              }
 
@@ -112,16 +120,23 @@ object HitServer {
                 logger(TAG, "Data Send = ${data.byteArr2HexStr()}")
                 ConnectionTimeStamps.startTransaction = getF48TimeStamp()
                 val sos = socket.getOutputStream()
-                sos?.write(data)
-                sos.flush()
-                progressMsg("Please wait receiving data from Bonushub server")
-                val dis = DataInputStream(socket.getInputStream())
+                    sos?.write(data)
+                    sos.flush()
+                    progressMsg("Please wait receiving data from Bonushub server")
+                    val dis = DataInputStream(socket.getInputStream())
 
                     val len = dis.readShort().toInt()
                     val response = ByteArray(len)
                     dis.readFully(response)
                     ConnectionTimeStamps.recieveTransaction = getF48TimeStamp()
                     responseStr = response.byteArr2HexStr()
+                    //   ConnectionTimeStamps.recieveTransaction = getF48TimeStamp()
+                    if (responseStr != null) {
+                        val reader = readIso(responseStr!!, false)
+                        Field48ResponseTimestamp.saveF48IdentifierAndTxnDate(
+                            reader.isoMap[48]?.parseRaw2String() ?: ""
+                        )
+                    }
                     //println("Data Recieve"+response.byteArr2HexStr())
                     logger(TAG, "len=$len, data = $responseStr")
                     socket.close()

@@ -36,6 +36,8 @@ object AppPreference {
     const val LAST_BATCH = "last_batch"
     const val HEADER_FOOTER = "header_footer"
 
+    const val F48IdentifierAndSuccesssTxn = "f48id_txnDate"
+
     @JvmStatic
     fun getBankCode(): String {
         val tBc = getString(BANK_CODE_KEY)

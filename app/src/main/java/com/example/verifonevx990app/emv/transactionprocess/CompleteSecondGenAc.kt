@@ -43,7 +43,8 @@ class CompleteSecondGenAc(var data: IsoDataReader, var isoData: IsoDataWriter? =
             if (tagData8a.isNotEmpty()) {
                 val ba = tagData8a.hexStr2ByteArr()
                 // rtn = EMVCallback.EMVSetTLVData(ta.toShort(), ba, ba.size)
-                logger(VFTransactionActivity.TAG,
+                logger(
+                    VFTransactionActivity.TAG,
                     "On setting ${Integer.toHexString(ta8A)} tag status = $",
                     "e"
                 )

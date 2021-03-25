@@ -51,7 +51,7 @@ class CreateSettlementPacket(
             addFieldByHex(42, tpt.merchantId)
 
             //adding field 48
-            addFieldByHex(48, ConnectionTimeStamps.getStamp())
+           addFieldByHex(48, Field48ResponseTimestamp.getF48Data())
 
             //Batch Number
             addFieldByHex(60, addPad(tpt.batchNumber, "0", 6, true))

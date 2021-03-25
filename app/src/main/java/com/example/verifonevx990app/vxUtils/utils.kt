@@ -45,7 +45,6 @@ import java.util.zip.ZipEntry
 import java.util.zip.ZipInputStream
 import kotlin.experimental.and
 
-
 var isDashboardOpen = false
 var isExpanded = false
 
@@ -75,7 +74,6 @@ enum class UiAction(val tvalue: Int = 0, val title: String = "") {
     PRE_AUTH_COMPLETE(title = "Pre Auth Complete"), EMI_ENQUIRY(title = "Emi Enquiry"), BRAND_EMI(
         title = "Brand EMI"
     )
-
 }
 
 
@@ -508,7 +506,6 @@ object ConnectionTimeStamps {
         val stamp = if (stamp.isNotEmpty()) stamp else "~~~~"
         val otherInfo = getOtherInfo()
         return stamp + otherInfo
-
     }
 
 
@@ -668,20 +665,6 @@ object ROCProviderV2 {
             TerminalParameterTable.updateTerminalDataROCNumber(0)
         }
     }
-
-    //OLD METHOD
-    /*  fun incrementFromResponse(num: String, bankCode: String) {
-          try {
-              mRocHash[bankCode] = num.toInt() + 1
-              check(bankCode)
-              AppPreference.saveString(AppPreference.ROC_V2, mGson.toJson(mRocHash, mType))
-              TerminalParameterTable.updateTerminalDataROCNumber(getRoc(AppPreference.getBankCode()))
-          } catch (ex: Exception) {
-              logger(TAG, ex.message ?: "", "e")
-              increment(bankCode)
-          }
-
-      }*/
 
 
     fun incrementFromResponse(num: String, bankCode: String) {
@@ -2155,6 +2138,38 @@ fun divideAmountBy100(amount: Int = 0): Double {
         0.0
 }
 //endregion
+
+
+// Field 48 connection time stamp and other info
+object Field48ResponseTimestamp {
+    var identifier = ""
+    var oldSuccessTransDate = ""
+
+    fun saveF48IdentifierAndTxnDate(f48: String): String {
+        identifier = f48.split("~")[0]
+        oldSuccessTransDate = getF48TimeStamp()
+        val value = "$identifier~$oldSuccessTransDate"
+        AppPreference.saveString(AppPreference.F48IdentifierAndSuccesssTxn, value)
+        Log.e("IDTXNDATE", value)
+        return value
+    }
+
+    fun getF48Data(): String {
+        val idTxnDate = AppPreference.getString(AppPreference.F48IdentifierAndSuccesssTxn)
+        val identifier = idTxnDate.split("~")[0]
+        val startTran = getF48TimeStamp()
+        var receiveTransTime = ""
+        if (idTxnDate != "") {
+            receiveTransTime = idTxnDate.split("~")[1]
+        }
+        val dialStart = getF48TimeStamp()
+        val dialConnect = getF48TimeStamp()
+        val timeStamp = "${identifier}~${startTran}~${receiveTransTime}~${dialStart}~${dialConnect}"
+        Log.e("timeStamp", timeStamp)
+        val otherInfo = ConnectionTimeStamps.getOtherInfo()
+        return timeStamp + otherInfo
+    }
+}
 
 /*
 App Update Through FTP Steps:-

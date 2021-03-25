@@ -475,42 +475,45 @@ class VFTransactionActivity : BaseActivity() {
                         StubBatchData(
                             cardProcessedDataModal.getTransType(),
                             cardProcessedDataModal,
-                            printExtraData
+                            printExtraData, autoSettlementCheck
                         )
                         { stubbedData ->
                             if (cardProcessedDataModal.getTransType() == TransactionType.EMI_SALE.type ||
                                 cardProcessedDataModal.getTransType() == TransactionType.BRAND_EMI.type
                             ) {
-                                stubEMI(stubbedData, emiSelectedData, emiTAndCData) { data ->
-                                    Log.d("StubbedEMIData:- ", data.toString())
-                                    printSaveSaleEmiDataInBatch(data) { printCB ->
+                                if (cardProcessedDataModal.getTransType() == TransactionType.EMI_SALE.type ||
+                                    cardProcessedDataModal.getTransType() == TransactionType.BRAND_EMI.type
+                                ) {
+                                    stubEMI(stubbedData, emiSelectedData, emiTAndCData) { data ->
+                                        Log.d("StubbedEMIData:- ", data.toString())
+                                        printSaveSaleEmiDataInBatch(data) { printCB ->
+                                            if (!printCB) {
+                                                //Here we are Syncing Offline Sale if we have any in Batch Table and also Check Sale Response has Auto Settlement enabled or not:-
+                                                //If Auto Settlement Enabled Show Pop Up and User has choice whether he/she wants to settle or not:-
+                                                if (!TextUtils.isEmpty(autoSettlementCheck))
+                                                    GlobalScope.launch(Dispatchers.Main) {
+                                                        syncOfflineSaleAndAskAutoSettlement(
+                                                            autoSettlementCheck.substring(0, 1)
+                                                        )
+                                                    }
+                                            }
+                                        }
+                                    }
+                                } else {
+                                    printAndSaveBatchDataInDB(stubbedData) { printCB ->
                                         if (!printCB) {
                                             //Here we are Syncing Offline Sale if we have any in Batch Table and also Check Sale Response has Auto Settlement enabled or not:-
                                             //If Auto Settlement Enabled Show Pop Up and User has choice whether he/she wants to settle or not:-
-                                            if (!TextUtils.isEmpty(autoSettlementCheck))
+                                            if (!TextUtils.isEmpty(autoSettlementCheck)) {
                                                 GlobalScope.launch(Dispatchers.Main) {
                                                     syncOfflineSaleAndAskAutoSettlement(
                                                         autoSettlementCheck.substring(0, 1)
                                                     )
                                                 }
-                                        }
-                                    }
-                                }
-                            } else {
-                                printAndSaveBatchDataInDB(stubbedData) { printCB ->
-                                    if (!printCB) {
-                                        //Here we are Syncing Offline Sale if we have any in Batch Table and also Check Sale Response has Auto Settlement enabled or not:-
-                                        //If Auto Settlement Enabled Show Pop Up and User has choice whether he/she wants to settle or not:-
-                                        if (!TextUtils.isEmpty(autoSettlementCheck)) {
-                                            GlobalScope.launch(Dispatchers.Main) {
-                                                syncOfflineSaleAndAskAutoSettlement(
-                                                    autoSettlementCheck.substring(0, 1)
-                                                )
                                             }
                                         }
                                     }
                                 }
-                            }
                         }
                     } else if (syncStatus && responseCode != "00") {
                         GlobalScope.launch(Dispatchers.Main) {
@@ -1196,6 +1199,9 @@ class VFTransactionActivity : BaseActivity() {
                 val maskedPan = cardProcessedData.getPanNumberData()?.let {
                     getMaskedPan(TerminalParameterTable.selectFromSchemeTable(), it)
                 }
+                emiSelectedData = data.getParcelableExtra("emiSchemeDataList")
+                emiTAndCData = data.getParcelableExtra("emiTAndCDataList")
+                Log.d("SelectedEMI Data:- ", emiSelectedData.toString())
                 runOnUiThread {
                     binding?.atCardNoTv?.text = maskedPan
                     cardView_l.visibility = View.VISIBLE
@@ -1204,10 +1210,9 @@ class VFTransactionActivity : BaseActivity() {
                     binding?.paymentGif?.loadUrl("file:///android_asset/cardprocess.html")
                     binding?.manualEntryButton?.visibility = View.GONE
                     binding?.tvInsertCard?.visibility = View.GONE
+                    binding?.baseAmtTv?.text =
+                        (((emiSelectedData?.transactionAmount)?.toDouble())?.div(100)).toString()
                 }
-                emiSelectedData = data.getParcelableExtra("emiSchemeDataList")
-                emiTAndCData = data.getParcelableExtra("emiTAndCDataList")
-                Log.d("SelectedEMI Data:- ", emiSelectedData.toString())
 
                 // Change By lucky  (No need to convert in paisa ie  multiply by 100 it already in paisa i.e multiplied by 100)
                 val emiSelectedTransactionAmount = (emiSelectedData?.transactionAmount)?.toLong()

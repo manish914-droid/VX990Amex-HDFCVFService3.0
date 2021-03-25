@@ -37,7 +37,7 @@ class CreateVoidRefundPacket(private var batch: BatchFileDataTable) :
 
         addFieldByHex(42, batch.mid)
 
-        addFieldByHex(48, ConnectionTimeStamps.getStamp())
+       addFieldByHex(48, Field48ResponseTimestamp.getF48Data())
 
         //Transaction's ROC, transactionDate, transaction Time
         val f56 = "${

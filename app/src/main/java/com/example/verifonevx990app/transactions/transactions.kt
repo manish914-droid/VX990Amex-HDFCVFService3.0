@@ -339,7 +339,7 @@ fun checknPerformReversal(pc: OnProgress, resultCb: (Boolean) -> Unit) {
                         addFieldByHex(42, f42.parseRaw2String())
 //                    isoMap[42] = f42
 
-                    addFieldByHex(48, ConnectionTimeStamps.getStamp())
+                   addFieldByHex(48, Field48ResponseTimestamp.getF48Data())
 
                     //endregion////
 
@@ -729,7 +729,7 @@ fun doVoidTransaction(
 
                     addFieldByHex(41, batch.tid)
                     addFieldByHex(42, batch.mid)
-                    addFieldByHex(48, ConnectionTimeStamps.getStamp())
+                    addFieldByHex(48, Field48ResponseTimestamp.getF48Data())
 
                     //Transaction's ROC, transactionDate, transaction Time
                     val f56 = "${batch.roc}${batch.transactionDate}${batch.transactionTime}"
@@ -820,7 +820,7 @@ fun doEmiEnquiry(
                         addFieldByHex(41, tpt.terminalId)
                         addFieldByHex(42, tpt.merchantId)
 
-                        addFieldByHex(48, ConnectionTimeStamps.getStamp())
+                        addFieldByHex(48, Field48ResponseTimestamp.getF48Data())
 
                         val f58 = "${data["mobile"]}|$issuer|"
                         addFieldByHex(58, f58)
@@ -1013,7 +1013,7 @@ fun doPendingPreauth(onResult: (Boolean, Any) -> Unit) {
                 addFieldByHex(41, tpt.terminalId)
                 addFieldByHex(42, tpt.merchantId)
 
-                addFieldByHex(48, ConnectionTimeStamps.getStamp())
+               addFieldByHex(48, Field48ResponseTimestamp.getF48Data())
 
                 addFieldByHex(60, addPad(tpt.batchNumber, "0", 6))
                 val f61 = getField61(ipt)
@@ -1297,7 +1297,7 @@ suspend fun uploadOfflineSale(data: List<OfflineSaleTable> = listOf()): Boolean 
                 addFieldByHex(41, each.tid)
                 addFieldByHex(42, each.mid)
 
-                addFieldByHex(48, ConnectionTimeStamps.getStamp())
+               addFieldByHex(48, Field48ResponseTimestamp.getF48Data())
 
                 val f57Arr = each.encriptedF57.hexStr2ByteArr()
 
@@ -1399,7 +1399,7 @@ suspend fun doTipSale(tipAmt: Float, batch: BatchFileDataTable, onResult: (Boole
             addFieldByHex(41, batch.tid)
             addFieldByHex(42, batch.mid)
 
-            addFieldByHex(48, ConnectionTimeStamps.getStamp())
+           addFieldByHex(48, Field48ResponseTimestamp.getF48Data())
 
             var f54 = "%.2f".format(tipAmt)
             f54 = f54.replace(".", "")

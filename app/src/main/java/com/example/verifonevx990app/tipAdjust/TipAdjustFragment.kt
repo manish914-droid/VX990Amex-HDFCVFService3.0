@@ -516,7 +516,7 @@ fun createTipAdjustISO(tipAmt: Float, batch: BatchFileDataTable): IsoDataWriter 
         addFieldByHex(41, batch.tid)
         addFieldByHex(42, batch.mid)
 
-        addFieldByHex(48, ConnectionTimeStamps.getStamp())
+       addFieldByHex(48, Field48ResponseTimestamp.getF48Data())
 
         var f54 = "%.2f".format(tipAmt)
         f54 = f54.replace(".", "")

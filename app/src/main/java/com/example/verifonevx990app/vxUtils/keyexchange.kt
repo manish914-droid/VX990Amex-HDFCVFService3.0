@@ -470,7 +470,7 @@ class KeyExchanger(
         addFieldByHex(41, tid)
 
         //adding field 48
-        addFieldByHex(48, ConnectionTimeStamps.getStamp())
+       addFieldByHex(48, Field48ResponseTimestamp.getF48Data())
 
         //region=========adding field 61=============
         //adding Field 61
@@ -606,7 +606,7 @@ class KeyExchanger(
         addFieldByHex(41, tid)
 
         //adding field 48
-        addFieldByHex(48, ConnectionTimeStamps.getStamp())
+        addFieldByHex(48, Field48ResponseTimestamp.getF48Data())
 
         //region=========adding field 61=============
         val f61 = "3VX675 BonusHub  01.01.32.200626000000000000000000"//
@@ -716,7 +716,7 @@ suspend fun downloadPromo() {
 
             addFieldByHex(41, tpt.terminalId )
 
-            addFieldByHex(48, ConnectionTimeStamps.getStamp())
+            addFieldByHex(48, Field48ResponseTimestamp.getF48Data())
 
             //region========Adding Field 61=========
             addFieldByHex(61, KeyExchanger.getF61())
@@ -826,7 +826,7 @@ suspend fun getPromo(
                 addFieldByHex(41, terminalData.terminalId)
 
                 //Connection Time Stamps Field 48
-                //    addFieldByHex(48, ConnectionTimeStamps.getStamp())
+                //   addFieldByHex(48, Field48ResponseTimestamp.getF48Data())
 
                 //adding Field 57
                 addFieldByHex(57, field57RequestData)

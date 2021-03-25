@@ -203,6 +203,7 @@ open class BatchFileDataTable() : RealmObject(), Parcelable {
 
     //Host Response Fields:-
     var hostAutoSettleFlag: String = ""
+
     var hostBankID: String = ""
     var hostIssuerID: String = ""
     var hostMID: String = ""
@@ -211,6 +212,7 @@ open class BatchFileDataTable() : RealmObject(), Parcelable {
     var hostRoc: String = ""
     var hostInvoice: String = ""
     var hostCardType: String = ""
+
 
     private constructor(parcel: Parcel) : this() {
         authCode = parcel.readString().toString()
@@ -312,6 +314,16 @@ open class BatchFileDataTable() : RealmObject(), Parcelable {
         processingFee = parcel.readString().toString()
         cashBackPercent = parcel.readString().toString()
         isCashBackInPercent = parcel.readByte() != 0.toByte()
+
+        hostBankID = parcel.readString().toString()
+        hostIssuerID = parcel.readString().toString()
+        hostMID = parcel.readString().toString()
+        hostTID = parcel.readString().toString()
+        hostBatchNumber = parcel.readString().toString()
+        hostRoc = parcel.readString().toString()
+        hostInvoice = parcel.readString().toString()
+        hostCardType = parcel.readString().toString()
+
     }
 
     override fun writeToParcel(parcel: Parcel, flags: Int) {
@@ -414,6 +426,15 @@ open class BatchFileDataTable() : RealmObject(), Parcelable {
         parcel.writeString(processingFee)
         parcel.writeString(cashBackPercent)
         parcel.writeByte(if (isCashBackInPercent) 1 else 0)
+
+        parcel.writeString(hostBankID)
+        parcel.writeString(hostIssuerID)
+        parcel.writeString(hostMID)
+        parcel.writeString(hostTID)
+        parcel.writeString(hostBatchNumber)
+        parcel.writeString(hostRoc)
+        parcel.writeString(hostInvoice)
+        parcel.writeString(hostCardType)
 
     }
 

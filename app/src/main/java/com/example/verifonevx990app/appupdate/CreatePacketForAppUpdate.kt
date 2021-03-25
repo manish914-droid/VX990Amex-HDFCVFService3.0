@@ -28,7 +28,7 @@ class CreatePacketForAppUpdate(
             addFieldByHex(41, terminalData.terminalId)
 
             //Connection Time Stamps Field 48
-            addFieldByHex(48, ConnectionTimeStamps.getStamp())
+           addFieldByHex(48, Field48ResponseTimestamp.getF48Data())
 
             //Batch Number Field 60 [Chunk Size + File Partial Name]
             if (chunkValue == "0" && partialName == "0") {

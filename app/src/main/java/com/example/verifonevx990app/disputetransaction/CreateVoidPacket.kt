@@ -35,7 +35,7 @@ class CreateVoidPacket(val batch: BatchFileDataTable) : IVoidExchange {
 
         addFieldByHex(41, batch.tid)
         addFieldByHex(42, batch.mid)
-        addFieldByHex(48, ConnectionTimeStamps.getStamp())
+        addFieldByHex(48, Field48ResponseTimestamp.getF48Data())
 
         if(batch.transactionType == TransactionType.TIP_SALE.type)
             addFieldByHex(54, addPad(batch.tipAmmount, "0", 12))

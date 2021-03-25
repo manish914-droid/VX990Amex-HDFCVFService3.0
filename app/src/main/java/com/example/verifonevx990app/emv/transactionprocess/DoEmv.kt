@@ -126,8 +126,6 @@ class DoEmv(
                     0x00.toByte()
                 ) //------> For Sale Transaction
             }
-
-
             // Starting EMV Process Here---------->>
             iemv?.startEMV(ConstIPBOC.startEMV.processType.full_process, emvIntent, emvHandler())
 

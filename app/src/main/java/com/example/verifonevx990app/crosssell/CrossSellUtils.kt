@@ -78,7 +78,7 @@ class CreateCrossSellPackets(var field57Data: String) : ICrossSellPacketExchange
             addFieldByHex(41, terminalData.terminalId)
 
             //Connection Time Stamps Field 48
-            addFieldByHex(48, ConnectionTimeStamps.getStamp())
+           addFieldByHex(48, Field48ResponseTimestamp.getF48Data())
 
             //adding Field 57
             addFieldByHex(57, field57Data)

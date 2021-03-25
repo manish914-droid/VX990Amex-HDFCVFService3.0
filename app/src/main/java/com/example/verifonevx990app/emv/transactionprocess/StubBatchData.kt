@@ -20,7 +20,8 @@ class StubBatchData(
     var transactionType: Int,
     var cardProcessedDataModal: CardProcessedDataModal,
     private var printExtraData: Triple<String, String, String>?,
-    var batchStubCallback: (BatchFileDataTable) -> Unit
+    private val field60Data: String,
+    batchStubCallback: (BatchFileDataTable) -> Unit
 ) {
 
     var vfIEMV: IEMV? = null
@@ -39,19 +40,6 @@ class StubBatchData(
             cardProcessedDataModal.getPanNumberData().toString()
         )
         val batchFileData = BatchFileDataTable()
-       /* //Auto Increment Invoice Number in BatchFileData Table:-
-        var invoiceIncrementValue = 0
-        if (AppPreference.getIntData(PrefConstant.SALE_INVOICE_INCREMENT.keyName.toString()) == 0) {
-            invoiceIncrementValue = terminalData?.invoiceNumber?.toInt() ?: 0
-            AppPreference.setIntData(PrefConstant.SALE_INVOICE_INCREMENT.keyName.toString(), invoiceIncrementValue)
-
-        } else {
-                invoiceIncrementValue =
-                    AppPreference.getIntData(PrefConstant.SALE_INVOICE_INCREMENT.keyName.toString()) + 1
-                AppPreference.setIntData(PrefConstant.SALE_INVOICE_INCREMENT.keyName.toString(), invoiceIncrementValue
-                )
-
-        }*/
 
         //Below we are saving Transaction related CardProcessedDataModal Data in BatchFileDataTable object to save in DB:-
         batchFileData.serialNumber = AppPreference.getString("serialNumber")
@@ -285,13 +273,30 @@ class StubBatchData(
         batchFileData.merchantBillNumber =
             cardProcessedDataModal.getMobileBillExtraData()?.second ?: ""
 
-        if(batchFileData.transactionType!=TransactionType.PRE_AUTH.type) {
+        if (batchFileData.transactionType != TransactionType.PRE_AUTH.type) {
             val lastSuccessReceiptData = Gson().toJson(batchFileData)
             AppPreference.saveString(AppPreference.LAST_SUCCESS_RECEIPT_KEY, lastSuccessReceiptData)
         }
+        // region =======saving extra fields for printing and for reports i.e ROC,INVOICE,TID ,MID,etc..
 
-
-        return batchFileData
+        val f60DataList = field60Data.split('|')
+        //   Auto settle flag | Bank id| Issuer id | MID | TID | Batch No | Stan | Invoice | Card Type
+//0|1|51|000000041501002|41501369|000150|260|000260|RUPAY|
+        return try {
+            batchFileData.hostBankID = f60DataList[1]
+            batchFileData.hostIssuerID = f60DataList[2]
+            batchFileData.hostMID = f60DataList[3]
+            batchFileData.hostTID = f60DataList[4]
+            batchFileData.hostBatchNumber = f60DataList[5]
+            batchFileData.hostRoc = f60DataList[6]
+            batchFileData.hostInvoice = f60DataList[7]
+            batchFileData.hostCardType = f60DataList[8]
+            batchFileData
+        } catch (ex: Exception) {
+            ex.printStackTrace()
+            batchFileData
+        }
+        //endregion============
     }
 }
 // Here We are stubbing emi data into batch record and save it in BatchFile.

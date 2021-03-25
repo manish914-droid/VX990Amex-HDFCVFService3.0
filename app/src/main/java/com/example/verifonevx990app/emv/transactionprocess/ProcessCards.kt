@@ -479,6 +479,7 @@ class ProcessCard(
                             }
 
                             TransactionType.SALE.type -> {
+                                // Checking Insta Emi Available or not
                                 var hasInstaEmi = false
                                 val tpt = TerminalParameterTable.selectFromSchemeTable()
                                 var limitAmt = 0f
@@ -496,6 +497,7 @@ class ProcessCard(
                                         false
                                     }
                                 }
+                                // Condition executes, If insta EMI is Available on card
                                 if (limitAmt <= transactionalAmt && hasInstaEmi) {
                                     //region=========This Field is use only in case of BankEMI Field58 Transaction Amount:-
                                     cardProcessedDataModal.setEmiTransactionAmount(transactionalAmt)
@@ -565,6 +567,7 @@ class ProcessCard(
                                             }
                                         })
                                 } else {
+                                    //Condition executes when  No EMI Available instantly(Directly Normal Sale)
                                     DoEmv(
                                         activity, handler, cardProcessedDataModal,
                                         ConstIPBOC.startEMV.intent.VALUE_cardType_smart_card
@@ -650,7 +653,12 @@ class ProcessCard(
 
                         issuerUpdate(iemv)
 
-                        DoEmv(activity, handler, cardProcessedDataModal, ConstIPBOC.startEMV.intent.VALUE_cardType_contactless) { cardProcessedDataModal ->
+                        DoEmv(
+                            activity,
+                            handler,
+                            cardProcessedDataModal,
+                            ConstIPBOC.startEMV.intent.VALUE_cardType_contactless
+                        ) { cardProcessedDataModal ->
                             transactionCallback(cardProcessedDataModal)
                         }
                     } catch (ex: DeadObjectException) {

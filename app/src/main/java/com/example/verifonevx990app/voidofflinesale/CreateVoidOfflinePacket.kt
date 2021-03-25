@@ -46,7 +46,7 @@ class CreateVoidOfflinePacket(private var voidOfflineSaleData: BatchFileDataTabl
             addFieldByHex(42, terminalData.merchantId)
 
             //Connection Time Stamps Field 48
-            addFieldByHex(48, ConnectionTimeStamps.getStamp())
+           addFieldByHex(48, Field48ResponseTimestamp.getF48Data())
 
             //adding Field 56 with combination of ROC + DATE + TIME (36 Length)
             val field56Data =

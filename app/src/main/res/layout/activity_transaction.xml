@@ -29,7 +29,6 @@
         android:layout_marginStart="8dp"
         android:layout_marginEnd="@dimen/pad_16"
         android:gravity="end"
-        android:hint="@string/_500_00"
         android:textColor="@color/colorPrimary"
         android:textSize="@dimen/text_size_xregular"
         app:fname="bold"
