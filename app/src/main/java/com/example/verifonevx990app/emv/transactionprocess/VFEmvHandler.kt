@@ -356,7 +356,8 @@ class VFEmvHandler(var activity: Activity,var handler: Handler, var iemv: IEMV?,
                             }
                         }
                     } else if (cardProcessedDataModal.getTransType() == TransactionType.EMI_SALE.type ||
-                        cardProcessedDataModal.getTransType() == TransactionType.BRAND_EMI.type
+                        cardProcessedDataModal.getTransType() == TransactionType.BRAND_EMI.type ||
+                        cardProcessedDataModal.getTransType() == TransactionType.BRAND_EMI_BY_ACCESS_CODE.type
                     ) {
                         (activity as VFTransactionActivity).checkEmiInstaEmi(cardProcessedDataModal) {
                             iemv?.importCardConfirmResult(ConstIPBOC.importCardConfirmResult.pass.allowed)
