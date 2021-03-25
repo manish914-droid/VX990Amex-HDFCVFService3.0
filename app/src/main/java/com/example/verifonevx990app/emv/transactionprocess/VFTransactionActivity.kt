@@ -252,7 +252,6 @@ class VFTransactionActivity : BaseActivity() {
             }
 
             DetectCardType.EMV_CARD_TYPE -> {
-                //  when(cardProcessedData.getTransType()==)
 
                 if (cardProcessedData.getTransType() == TransactionType.SALE.type ||
                     cardProcessedData.getTransType() == TransactionType.PRE_AUTH.type ||
@@ -1210,15 +1209,28 @@ class VFTransactionActivity : BaseActivity() {
                 // ((emiSelectedData?.transactionAmount?.toDouble())?.times(100))?.toLong()
                 cardProcessedData.setTransactionAmount(emiSelectedTransactionAmount ?: 0L)
 
+                if (cardProcessedData.getTransType() == TransactionType.TEST_EMI.type) {
+                    VFService.showToast("Connect to Sale with 1 Ruppe transaction")
+                    cardProcessedData.setTransactionAmount(100)
+
+                }
+
                 DoEmv(
                     this, pinHandler, cardProcessedData,
                     ConstIPBOC.startEMV.intent.VALUE_cardType_smart_card
                 ) { cardProcessedDataModal ->
                     Log.d("CardEMIData:- ", cardProcessedDataModal.toString())
                     cardProcessedDataModal.setProcessingCode(transactionProcessingCode)
-                    cardProcessedDataModal.setTransactionAmount(emiSelectedTransactionAmount ?: 0L)
+                    cardProcessedDataModal.setTransactionAmount(
+                        emiSelectedTransactionAmount ?: 0L
+                    )
                     cardProcessedDataModal.setOtherAmount(otherTransAmount)
-                    cardProcessedDataModal.setMobileBillExtraData(Pair(mobileNumber, billNumber))
+                    cardProcessedDataModal.setMobileBillExtraData(
+                        Pair(
+                            mobileNumber,
+                            billNumber
+                        )
+                    )
                     globalCardProcessedModel = cardProcessedDataModal
                     Log.d("CardProcessedData:- ", Gson().toJson(cardProcessedDataModal))
                     val maskedPan = cardProcessedDataModal.getPanNumberData()?.let {
@@ -1234,7 +1246,9 @@ class VFTransactionActivity : BaseActivity() {
                     //Below Different Type of Transaction check Based ISO Packet Generation happening:-
                     processAccordingToCardType(cardProcessedDataModal)
                 }
+
             }
+
         }
     }
 

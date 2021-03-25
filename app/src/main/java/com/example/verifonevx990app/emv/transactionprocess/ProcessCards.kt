@@ -419,11 +419,12 @@ class ProcessCard(
                         VFService.vfBeeper?.startBeep(200)
                         println("TransactionAmount is calling" + transactionalAmt.toString() + "Handler is" + handler)
                         when (cardProcessedDataModal.getTransType()) {
-                            TransactionType.EMI_SALE.type, TransactionType.BRAND_EMI.type -> {
+                            TransactionType.EMI_SALE.type, TransactionType.BRAND_EMI.type, TransactionType.TEST_EMI.type -> {
                                 //region=========This Field is use only in case of BankEMI Field58 Transaction Amount:-
                                 cardProcessedDataModal.setEmiTransactionAmount(transactionalAmt)
                                 //endregion
-                                iemv?.startEMV(ConstIPBOC.startEMV.processType.full_process,
+                                iemv?.startEMV(
+                                    ConstIPBOC.startEMV.processType.full_process,
                                     Bundle(),
                                     GenericReadCardData(activity, iemv) { cardBinValue ->
                                         if (!TextUtils.isEmpty(cardBinValue)) {

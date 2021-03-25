@@ -347,7 +347,11 @@ class NewInputAmountFragment : Fragment() {
                             )
                     }
                 }
-                EDashboardItem.BANK_EMI -> {
+                EDashboardItem.BANK_EMI, EDashboardItem.TEST_EMI -> {
+                    var uiAction = UiAction.BANK_EMI
+                    if (transactionType == EDashboardItem.TEST_EMI) {
+                        uiAction = UiAction.TEST_EMI
+                    }
                     if (tpt?.reservedValues?.substring(1, 2) == "1" && tpt.reservedValues.substring(
                             2,
                             3
@@ -359,7 +363,7 @@ class NewInputAmountFragment : Fragment() {
                         ) { extraPairData ->
                             if (extraPairData.third) {
                                 iFrReq?.onFragmentRequest(
-                                    UiAction.BANK_EMI,
+                                    uiAction,
                                     Pair(binding?.saleAmount?.text.toString().trim(), "0"),
                                     extraPairData
                                 )
@@ -381,7 +385,7 @@ class NewInputAmountFragment : Fragment() {
                         ) { extraPairData ->
                             if (extraPairData.third) {
                                 iFrReq?.onFragmentRequest(
-                                    UiAction.BANK_EMI,
+                                    uiAction,
                                     Pair(binding?.saleAmount?.text.toString().trim(), "0"),
                                     extraPairData
                                 )
@@ -403,7 +407,7 @@ class NewInputAmountFragment : Fragment() {
                         ) { extraPairData ->
                             if (extraPairData.third) {
                                 iFrReq?.onFragmentRequest(
-                                    UiAction.BANK_EMI,
+                                    uiAction,
                                     Pair(binding?.saleAmount?.text.toString().trim(), "0"),
                                     extraPairData
                                 )
@@ -420,7 +424,7 @@ class NewInputAmountFragment : Fragment() {
                         }
                     } else {
                         iFrReq?.onFragmentRequest(
-                            UiAction.BANK_EMI,
+                            uiAction,
                             Pair(binding?.saleAmount?.text.toString().trim(), "0"),
                             Triple("", "", true)
                         )

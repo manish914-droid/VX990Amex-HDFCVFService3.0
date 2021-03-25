@@ -73,7 +73,8 @@ enum class UiAction(val tvalue: Int = 0, val title: String = "") {
     ),
     PRE_AUTH_COMPLETE(title = "Pre Auth Complete"), EMI_ENQUIRY(title = "Emi Enquiry"), BRAND_EMI(
         title = "Brand EMI"
-    )
+    ),
+    TEST_EMI(title = "Test EMI")
 }
 
 

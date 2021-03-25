@@ -107,7 +107,7 @@ class GenericReadCardData(
     }
 
     override fun onTransactionResult(result: Int, data: Bundle?) {
-        Log.d("FallbackCode:- ", result.toString())
+        Log.d("FalbckCode GenricReader", result.toString())
     }
 
     override fun onRequestInputPIN(isOnlinePin: Boolean, retryTimes: Int) {

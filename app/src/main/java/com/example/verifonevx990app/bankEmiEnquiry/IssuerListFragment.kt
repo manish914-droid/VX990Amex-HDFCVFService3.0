@@ -124,27 +124,30 @@ class IssuerListFragment : Fragment() {
                                         {})
                                 }
                             } else {
-                                parseAndStubbingBankEMIEnquiryDataToList(
-                                    responseIsoReader?.isoMap?.get(
-                                        57
-                                    )?.parseRaw2String().toString()
-                                ) { bankEmiEnquiryData ->
-                                    startActivity(
-                                        Intent(
-                                            activity,
-                                            EMiEnquiryOnPosActivity::class.java
-                                        ).apply {
-                                            putParcelableArrayListExtra(
-                                                "bankEnquiryData",
-                                                bankEmiEnquiryData as java.util.ArrayList<out Parcelable>
-                                            )
-                                            putExtra("enquiryAmt", enquiryAmtStr)
-                                            putExtra("bankName", selectedIssuers[0].issuerName)
+                                try {
+                                    parseAndStubbingBankEMIEnquiryDataToList(
+                                        responseIsoReader?.isoMap?.get(
+                                            57
+                                        )?.parseRaw2String().toString()
+                                    ) { bankEmiEnquiryData ->
+                                        startActivity(
+                                            Intent(
+                                                activity,
+                                                EMiEnquiryOnPosActivity::class.java
+                                            ).apply {
+                                                putParcelableArrayListExtra(
+                                                    "bankEnquiryData",
+                                                    bankEmiEnquiryData as java.util.ArrayList<out Parcelable>
+                                                )
+                                                putExtra("enquiryAmt", enquiryAmtStr)
+                                                putExtra("bankName", selectedIssuers[0].issuerName)
+                                            })
 
-                                        })
-
+                                    }
+                                } catch (ex: Exception) {
+                                    // ex.printStackTrace()
+                                    VFService.showToast("Some enquiry data missing")
                                 }
-
                             }
                         } else {
                             VFService.showToast(responseMsg.toString())
@@ -163,11 +166,12 @@ class IssuerListFragment : Fragment() {
     private var bankEMISchemesDataList: MutableList<BankEMIDataModal> = mutableListOf()
 
     //region=================Parse and Stubbing BankEMI Data To List:-
+
     private fun parseAndStubbingBankEMIEnquiryDataToList(
         bankEMIEnquiryHostResponseData: String, cb: (MutableList<BankEMIDataModal>) -> Unit
     ) {
-        GlobalScope.launch(Dispatchers.Main) {
-            if (!TextUtils.isEmpty(bankEMIEnquiryHostResponseData)) {
+
+        if (!TextUtils.isEmpty(bankEMIEnquiryHostResponseData)) {
                 val parsingDataWithCurlyBrace =
                     parseDataListWithSplitter("}", bankEMIEnquiryHostResponseData)
                 val parsingDataWithVerticalLineSeparator =
@@ -215,7 +219,7 @@ class IssuerListFragment : Fragment() {
 
                 }
             }
-        }
+
         //endregion
     }
 

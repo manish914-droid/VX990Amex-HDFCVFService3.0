@@ -4418,6 +4418,9 @@ enum class EDashboardItem(
     MORE("View More", R.drawable.ic_arrow_down, 999),
     MERCHANT_PROMO("Merchant Promo", R.drawable.ic_cash_advance, 15),
     EMI_PRO("Brand EMI By Access Code", R.drawable.ic_emi, 16),
+
+    // just for handling the test emi not used in dashboard items
+    TEST_EMI("Test Emi", R.drawable.ic_emi, 777),
     LESS("View Less", R.drawable.ic_arrow_up, 888);
 }
 

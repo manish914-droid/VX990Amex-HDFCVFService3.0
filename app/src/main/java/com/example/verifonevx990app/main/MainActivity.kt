@@ -648,8 +648,12 @@ class MainActivity : BaseActivity(), IFragmentRequest,
                 }
             }
 
-            UiAction.BANK_EMI -> {
+            UiAction.BANK_EMI, UiAction.TEST_EMI -> {
+                var transType = TransactionType.EMI_SALE.type
                 val amt = (data as Pair<*, *>).first.toString()
+                if (action == UiAction.TEST_EMI) {
+                    transType = TransactionType.TEST_EMI.type
+                }
                 val data = runBlocking(Dispatchers.IO) { IssuerTAndCTable.getAllIssuerTAndCData() }
                 if (data.isEmpty()) {
                     if (checkInternetConnection()) {
@@ -690,7 +694,7 @@ class MainActivity : BaseActivity(), IFragmentRequest,
                                         putExtra("amt", amt)
                                         putExtra(
                                             "type",
-                                            TransactionType.EMI_SALE.type
+                                            transType
                                         ) //EMI //UiAction.BANK_EMI
                                         putExtra("proc_code", ProcessingCode.SALE.code)
                                         putExtra("mobileNumber", extraPairData?.first)
@@ -706,7 +710,7 @@ class MainActivity : BaseActivity(), IFragmentRequest,
                                         putExtra("amt", amt)
                                         putExtra(
                                             "type",
-                                            TransactionType.EMI_SALE.type
+                                            transType
                                         ) //EMI //UiAction.BANK_EMI
                                         putExtra("proc_code", ProcessingCode.SALE.code)
                                         putExtra("mobileNumber", extraPairData?.first)
@@ -727,7 +731,7 @@ class MainActivity : BaseActivity(), IFragmentRequest,
                             putExtra("amt", amt)
                             putExtra(
                                 "type",
-                                TransactionType.EMI_SALE.type
+                                transType
                             ) //EMI //UiAction.BANK_EMI
                             putExtra("proc_code", ProcessingCode.SALE.code)
                             putExtra("mobileNumber", extraPairData?.first)
@@ -1436,7 +1440,7 @@ class MainActivity : BaseActivity(), IFragmentRequest,
 
     // endregion
     //Below Method is to Handle the Input Fragment Inflate with the Sub Heading it belongs to:-
-    private fun inflateInputFragment(
+    fun inflateInputFragment(
         fragment: Fragment,
         subHeading: String,
         action: EDashboardItem
@@ -2119,6 +2123,7 @@ enum class SubHeaderTitle(val title: String) {
     Brand_EMI_SUB_Category("Brand EMI Sub Category"),
     Brand_EMI("Brand EMI Sale"),
     Brand_EMI_BY_ACCESS_CODE("Brand EMI By Access Code"),
+    TEST_EMI("Test EMI"),
 }
 
 //Below Enum Class is used for Preference Save [String , Int and Boolean] Keys Constant:-

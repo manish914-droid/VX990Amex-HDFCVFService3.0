@@ -19,8 +19,10 @@ import com.example.verifonevx990app.R
 import com.example.verifonevx990app.databinding.FragmentSubmenuBinding
 import com.example.verifonevx990app.main.MainActivity
 import com.example.verifonevx990app.main.PrefConstant
+import com.example.verifonevx990app.main.SubHeaderTitle
 import com.example.verifonevx990app.offlinemanualsale.OfflineSalePrintReceipt
 import com.example.verifonevx990app.realmtables.*
+import com.example.verifonevx990app.transactions.NewInputAmountFragment
 import com.example.verifonevx990app.utils.printerUtils.EPrintCopyType
 import com.example.verifonevx990app.utils.printerUtils.PrintUtil
 import com.example.verifonevx990app.voidrefund.VoidRefundSalePrintReceipt
@@ -39,6 +41,7 @@ enum class EOptionGroup {
 enum class BankOptions(val _name: String, val group: EOptionGroup, val res: Int = 0) {
     INITT("INIT", EOptionGroup.FUNCTIONS, R.drawable.ic_init),
     DOWNLOAD_TMK("Download TMK", EOptionGroup.FUNCTIONS, R.drawable.ic_key_exchange),
+    TEST_EMI("Test EMI", EOptionGroup.FUNCTIONS, R.drawable.ic_brand_emi),
     TPT("Terminal Param", EOptionGroup.FUNCTIONS, R.drawable.ic_tpt_img),
     CPT("Com Param", EOptionGroup.FUNCTIONS, R.drawable.ic_copt),
     ENV("ENV Param", EOptionGroup.FUNCTIONS, R.drawable.ic_env),
@@ -456,6 +459,24 @@ SubMenuFragment : Fragment(), IOnSubMenuItemSelectListener {
                         }
                     }
                 }
+
+                BankOptions.TEST_EMI -> {
+                    verifySuperAdminPasswordDialog(requireActivity()) { correctPasswordSuccess ->
+                        if (correctPasswordSuccess) {
+                            if (checkInternetConnection()) {
+                                (activity as MainActivity).inflateInputFragment(
+                                    NewInputAmountFragment(),
+                                    SubHeaderTitle.TEST_EMI.title,
+                                    EDashboardItem.TEST_EMI
+                                )
+                            } else {
+                                VFService.showToast(getString(R.string.no_internet_available_please_check_your_internet))
+                            }
+
+                        }
+                    }
+                }
+
                 else -> {
                     verifySuperAdminPasswordDialog(requireActivity()) { success ->
                         if (success) {
