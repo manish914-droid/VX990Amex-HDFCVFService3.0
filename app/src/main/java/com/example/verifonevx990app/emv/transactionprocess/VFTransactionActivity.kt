@@ -100,7 +100,6 @@ class VFTransactionActivity : BaseActivity() {
         isManualEntryAllowed = tpt?.fManEntry == "1"
         globalCardProcessedModel.setTransType(transactionType)
 
-
         if (!TextUtils.isEmpty(AppPreference.getString(AppPreference.GENERIC_REVERSAL_KEY))) {
             Log.d("Reversal:-", " Reversal Consist Data")
         } else {
@@ -254,13 +253,13 @@ class VFTransactionActivity : BaseActivity() {
 
             DetectCardType.EMV_CARD_TYPE -> {
                 //  when(cardProcessedData.getTransType()==)
+
                 if (cardProcessedData.getTransType() == TransactionType.SALE.type ||
                     cardProcessedData.getTransType() == TransactionType.PRE_AUTH.type ||
                     cardProcessedData.getTransType() == TransactionType.REFUND.type ||
                     cardProcessedData.getTransType() == TransactionType.CASH_AT_POS.type ||
                     cardProcessedData.getTransType() == TransactionType.SALE_WITH_CASH.type ||
-                    cardProcessedData.getTransType() == TransactionType.EMI_SALE.type ||
-                    cardProcessedData.getTransType() == TransactionType.BRAND_EMI.type
+                    cardProcessedData.getTransType() == TransactionType.EMI_SALE.type
                 ) {
                     emvProcessNext(cardProcessedData)
                 } else {
@@ -281,10 +280,7 @@ class VFTransactionActivity : BaseActivity() {
 
             DetectCardType.CONTACT_LESS_CARD_TYPE -> {
 
-                if (cardProcessedData.getTransType() == TransactionType.SALE.type ||
-                    cardProcessedData.getTransType() == TransactionType.PRE_AUTH.type ||
-                    cardProcessedData.getTransType() == TransactionType.REFUND.type
-                ) {
+                if (cardProcessedData.getTransType() == TransactionType.SALE.type || cardProcessedData.getTransType() == TransactionType.PRE_AUTH.type || cardProcessedData.getTransType() == TransactionType.REFUND.type) {
                     emvProcessNext(cardProcessedData)
                 } else {
                     /*  val transactionEMIISO = CreateEMITransactionPacket(
@@ -313,10 +309,7 @@ class VFTransactionActivity : BaseActivity() {
 
             DetectCardType.CONTACT_LESS_CARD_WITH_MAG_TYPE -> {
 
-                if (cardProcessedData.getTransType() == TransactionType.SALE.type ||
-                    cardProcessedData.getTransType() == TransactionType.PRE_AUTH.type ||
-                    cardProcessedData.getTransType() == TransactionType.REFUND.type
-                ) {
+                if (cardProcessedData.getTransType() == TransactionType.SALE.type || cardProcessedData.getTransType() == TransactionType.PRE_AUTH.type || cardProcessedData.getTransType() == TransactionType.REFUND.type) {
                     emvProcessNext(cardProcessedData)
                 } else {
                     /*  val transactionEMIISO = CreateEMITransactionPacket(
@@ -481,39 +474,36 @@ class VFTransactionActivity : BaseActivity() {
                             if (cardProcessedDataModal.getTransType() == TransactionType.EMI_SALE.type ||
                                 cardProcessedDataModal.getTransType() == TransactionType.BRAND_EMI.type
                             ) {
-                                if (cardProcessedDataModal.getTransType() == TransactionType.EMI_SALE.type ||
-                                    cardProcessedDataModal.getTransType() == TransactionType.BRAND_EMI.type
-                                ) {
-                                    stubEMI(stubbedData, emiSelectedData, emiTAndCData) { data ->
-                                        Log.d("StubbedEMIData:- ", data.toString())
-                                        printSaveSaleEmiDataInBatch(data) { printCB ->
-                                            if (!printCB) {
-                                                //Here we are Syncing Offline Sale if we have any in Batch Table and also Check Sale Response has Auto Settlement enabled or not:-
-                                                //If Auto Settlement Enabled Show Pop Up and User has choice whether he/she wants to settle or not:-
-                                                if (!TextUtils.isEmpty(autoSettlementCheck))
-                                                    GlobalScope.launch(Dispatchers.Main) {
-                                                        syncOfflineSaleAndAskAutoSettlement(
-                                                            autoSettlementCheck.substring(0, 1)
-                                                        )
-                                                    }
-                                            }
-                                        }
-                                    }
-                                } else {
-                                    printAndSaveBatchDataInDB(stubbedData) { printCB ->
+                                stubEMI(stubbedData, emiSelectedData, emiTAndCData) { data ->
+                                    Log.d("StubbedEMIData:- ", data.toString())
+                                    printSaveSaleEmiDataInBatch(data) { printCB ->
                                         if (!printCB) {
                                             //Here we are Syncing Offline Sale if we have any in Batch Table and also Check Sale Response has Auto Settlement enabled or not:-
                                             //If Auto Settlement Enabled Show Pop Up and User has choice whether he/she wants to settle or not:-
-                                            if (!TextUtils.isEmpty(autoSettlementCheck)) {
+                                            if (!TextUtils.isEmpty(autoSettlementCheck))
                                                 GlobalScope.launch(Dispatchers.Main) {
                                                     syncOfflineSaleAndAskAutoSettlement(
                                                         autoSettlementCheck.substring(0, 1)
                                                     )
                                                 }
+                                        }
+                                    }
+                                }
+                            } else {
+                                printAndSaveBatchDataInDB(stubbedData) { printCB ->
+                                    if (!printCB) {
+                                        //Here we are Syncing Offline Sale if we have any in Batch Table and also Check Sale Response has Auto Settlement enabled or not:-
+                                        //If Auto Settlement Enabled Show Pop Up and User has choice whether he/she wants to settle or not:-
+                                        if (!TextUtils.isEmpty(autoSettlementCheck)) {
+                                            GlobalScope.launch(Dispatchers.Main) {
+                                                syncOfflineSaleAndAskAutoSettlement(
+                                                    autoSettlementCheck.substring(0, 1)
+                                                )
                                             }
                                         }
                                     }
                                 }
+                            }
                         }
                     } else if (syncStatus && responseCode != "00") {
                         GlobalScope.launch(Dispatchers.Main) {
@@ -1006,6 +996,7 @@ class VFTransactionActivity : BaseActivity() {
             if (!dialog.isShowing && !(this as Activity).isFinishing) {
                 dialog.show()
             }
+
         }
         catch (ex: WindowManager.BadTokenException) {
             ex.printStackTrace()
@@ -1211,7 +1202,7 @@ class VFTransactionActivity : BaseActivity() {
                     binding?.manualEntryButton?.visibility = View.GONE
                     binding?.tvInsertCard?.visibility = View.GONE
                     binding?.baseAmtTv?.text =
-                        (((emiSelectedData?.transactionAmount)?.toDouble())?.div(100)).toString()
+                        (((emiSelectedData?.transactionAmount)?.toFloat())?.div(100)).toString()
                 }
 
                 // Change By lucky  (No need to convert in paisa ie  multiply by 100 it already in paisa i.e multiplied by 100)

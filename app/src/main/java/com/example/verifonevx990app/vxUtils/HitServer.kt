@@ -42,13 +42,13 @@ object HitServer {
                // var responseStr : String? = null
             openSocket { socket ->
             //    try {
-                    irh?.saveReversal()
-                    logger(TAG, "address = ${socket.inetAddress}, port = ${socket.port}", "e")
-                    ConnectionTimeStamps.dialConnected = getF48TimeStamp()
-                    progressMsg("Please wait sending data to Bonushub server")
-                    //println("Data send" + data.byteArr2HexStr())
-                    logger(TAG, "Data Send = ${data.byteArr2HexStr()}")
-                    ConnectionTimeStamps.startTransaction = getF48TimeStamp()
+                irh?.saveReversal()
+                logger(TAG, "address = ${socket.inetAddress}, port = ${socket.port}", "e")
+                ConnectionTimeStamps.dialConnected = getF48TimeStamp()
+                progressMsg("Please wait sending data to Bonushub server")
+                //println("Data send" + data.byteArr2HexStr())
+                logger(TAG, "Data Send = ${data.byteArr2HexStr()}")
+                ConnectionTimeStamps.startTransaction = getF48TimeStamp()
                 val sos = socket.getOutputStream()
                 sos?.write(data)
                 sos.flush()
@@ -77,9 +77,9 @@ object HitServer {
                 //        catch (ex: Exception) {
                 //         ex.printStackTrace()
                 //       callback(responseStr ?: "", true)
-            //    }
+                //    }
                 callback(responseStr, true)
-                    this@HitServer.callback = null
+                this@HitServer.callback = null
              }
 
              } else {
@@ -113,13 +113,13 @@ object HitServer {
             openSocketSale { socket ->
                 try {
                     // irh?.saveReversal()
-                logger(TAG, "address = ${socket.inetAddress}, port = ${socket.port}", "e")
-                ConnectionTimeStamps.dialConnected = getF48TimeStamp()
-                progressMsg("Please wait sending data to Bonushub server")
-                //println("Data send" + data.byteArr2HexStr())
-                logger(TAG, "Data Send = ${data.byteArr2HexStr()}")
-                ConnectionTimeStamps.startTransaction = getF48TimeStamp()
-                val sos = socket.getOutputStream()
+                    logger(TAG, "address = ${socket.inetAddress}, port = ${socket.port}", "e")
+                    ConnectionTimeStamps.dialConnected = getF48TimeStamp()
+                    progressMsg("Please wait sending data to Bonushub server")
+                    //println("Data send" + data.byteArr2HexStr())
+                    logger(TAG, "Data Send = ${data.byteArr2HexStr()}")
+                    ConnectionTimeStamps.startTransaction = getF48TimeStamp()
+                    val sos = socket.getOutputStream()
                     sos?.write(data)
                     sos.flush()
                     progressMsg("Please wait receiving data from Bonushub server")

@@ -156,7 +156,7 @@ class CreateAuthPacket {
                 addFieldByHex(42, terminalData.merchantId)
 
                 //Connection Time Stamps Field 48
-                addFieldByHex(48, Field48ResponseTimestamp.getF48Data())
+               addFieldByHex(48, Field48ResponseTimestamp.getF48Data())
 
 
                 //Batch Number

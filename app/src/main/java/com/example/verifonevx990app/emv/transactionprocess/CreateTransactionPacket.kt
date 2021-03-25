@@ -85,7 +85,7 @@ class CreateTransactionPacket(
 
             //addFieldByHex(48, Field48ResponseTimestamp.getF48Data())
             //Connection Time Stamps Field 48
-            addFieldByHex(48, Field48ResponseTimestamp.getF48Data())
+           addFieldByHex(48, Field48ResponseTimestamp.getF48Data())
 
             //Field 52 in case of Pin
             if (!(TextUtils.isEmpty(cardProcessedData.getGeneratePinBlock())) && cardProcessedData.getPinByPass() == 0)
