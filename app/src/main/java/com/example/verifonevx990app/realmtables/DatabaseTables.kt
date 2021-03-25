@@ -4084,6 +4084,143 @@ open class BrandEMIDataTable() : RealmObject(), Parcelable {
 }
 //endregion
 
+//region================Brand EMI By Access Code Table:-
+open class BrandEMIAccessDataModalTable() : RealmObject(), Parcelable {
+    @PrimaryKey
+    var emiCode: String = ""
+    var bankID: String = ""
+    var bankTID: String = ""
+    var issuerID: String = ""
+    var tenure: String = ""
+    var brandID: String = ""
+    var productID: String = ""
+    var emiSchemeID: String = ""
+    var transactionAmount: String = ""
+    var discountAmount: String = ""
+    var loanAmount: String = ""
+    var interestAmount: String = ""
+    var emiAmount: String = ""
+    var cashBackAmount: String = ""
+    var netPayAmount: String = ""
+    var processingFee: String = ""
+    var processingFeeRate: String = ""
+    var totalProcessingFee: String = ""
+    var brandName: String = ""
+    var issuerName: String = ""
+    var productName: String = ""
+    var productCode: String = ""
+    var productModal: String = ""
+    var productCategoryName: String = ""
+    var productSerialCode: String = ""
+    var skuCode: String = ""
+    var totalInterest: String = ""
+    var schemeTAndC: String = ""
+    var schemeTenureTAndC: String = ""
+    var schemeDBDTAndC: String = ""
+    var discountCalculatedValue: String = ""
+    var cashBackCalculatedValue: String = ""
+
+    private constructor(parcel: Parcel) : this() {
+        emiCode = parcel.readString().toString()
+        bankID = parcel.readString().toString()
+        bankTID = parcel.readString().toString()
+        issuerID = parcel.readString().toString()
+        tenure = parcel.readString().toString()
+        brandID = parcel.readString().toString()
+        productID = parcel.readString().toString()
+        emiSchemeID = parcel.readString().toString()
+        transactionAmount = parcel.readString().toString()
+        discountAmount = parcel.readString().toString()
+        loanAmount = parcel.readString().toString()
+        interestAmount = parcel.readString().toString()
+        emiAmount = parcel.readString().toString()
+        cashBackAmount = parcel.readString().toString()
+        netPayAmount = parcel.readString().toString()
+        processingFee = parcel.readString().toString()
+        processingFeeRate = parcel.readString().toString()
+        totalProcessingFee = parcel.readString().toString()
+        brandName = parcel.readString().toString()
+        processingFeeRate = parcel.readString().toString()
+        issuerName = parcel.readString().toString()
+        productName = parcel.readString().toString()
+        productCode = parcel.readString().toString()
+        productModal = parcel.readString().toString()
+        productCategoryName = parcel.readString().toString()
+        productSerialCode = parcel.readString().toString()
+        skuCode = parcel.readString().toString()
+        totalInterest = parcel.readString().toString()
+        schemeTAndC = parcel.readString().toString()
+        schemeTenureTAndC = parcel.readString().toString()
+        schemeDBDTAndC = parcel.readString().toString()
+        discountCalculatedValue = parcel.readString().toString()
+        cashBackCalculatedValue = parcel.readString().toString()
+    }
+
+    override fun writeToParcel(p0: Parcel?, p1: Int) {
+        p0?.writeString(emiCode)
+        p0?.writeString(bankID)
+        p0?.writeString(bankTID)
+        p0?.writeString(issuerID)
+        p0?.writeString(tenure)
+        p0?.writeString(brandID)
+        p0?.writeString(productID)
+        p0?.writeString(emiSchemeID)
+        p0?.writeString(transactionAmount)
+        p0?.writeString(discountAmount)
+        p0?.writeString(loanAmount)
+        p0?.writeString(interestAmount)
+        p0?.writeString(emiAmount)
+        p0?.writeString(cashBackAmount)
+        p0?.writeString(netPayAmount)
+        p0?.writeString(processingFee)
+        p0?.writeString(processingFeeRate)
+        p0?.writeString(totalProcessingFee)
+        p0?.writeString(brandName)
+        p0?.writeString(processingFeeRate)
+        p0?.writeString(issuerName)
+        p0?.writeString(productName)
+        p0?.writeString(productCode)
+        p0?.writeString(productModal)
+        p0?.writeString(productCategoryName)
+        p0?.writeString(productSerialCode)
+        p0?.writeString(skuCode)
+        p0?.writeString(totalInterest)
+        p0?.writeString(schemeTAndC)
+        p0?.writeString(schemeTenureTAndC)
+        p0?.writeString(schemeDBDTAndC)
+        p0?.writeString(discountCalculatedValue)
+        p0?.writeString(cashBackCalculatedValue)
+    }
+
+    override fun describeContents(): Int {
+        return 0
+    }
+
+    companion object {
+        private val TAG = BrandEMIAccessDataModalTable::class.java.simpleName
+
+        @JvmField
+        val CREATOR = object : Parcelable.Creator<BrandEMIAccessDataModalTable> {
+            override fun createFromParcel(parcel: Parcel): BrandEMIAccessDataModalTable {
+                return BrandEMIAccessDataModalTable(parcel)
+            }
+
+            override fun newArray(size: Int): Array<BrandEMIAccessDataModalTable> {
+                return Array(size) { BrandEMIAccessDataModalTable() }
+            }
+        }
+
+        fun performOperation(param: BrandEMIAccessDataModalTable) =
+            withRealm { it.executeTransaction { i -> i.insertOrUpdate(param) } }
+
+        //region===================Method to Clear BrandEMI By AccessCode Table:-
+        fun clear() =
+            withRealm { it.executeTransaction { i -> i.delete(BrandEMIAccessDataModalTable::class.java) } }
+        //endregion
+    }
+}
+//endregion
+
 
 @RealmClass
 open class OfflineSaleTable() : RealmObject(), Parcelable {

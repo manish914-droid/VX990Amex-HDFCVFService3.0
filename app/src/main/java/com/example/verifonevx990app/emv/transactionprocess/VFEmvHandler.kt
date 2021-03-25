@@ -14,13 +14,15 @@ import android.widget.RadioButton
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.verifonevx990app.R
-import com.example.verifonevx990app.main.*
+import com.example.verifonevx990app.main.DetectCardType
+import com.example.verifonevx990app.main.DetectError
+import com.example.verifonevx990app.main.MainActivity
+import com.example.verifonevx990app.main.PosEntryModeType
 import com.example.verifonevx990app.utils.Utility
 import com.example.verifonevx990app.vxUtils.*
 import com.example.verifonevx990app.vxUtils.ROCProviderV2.getField55
 import com.vfi.smartpos.deviceservice.aidl.EMVHandler
 import com.vfi.smartpos.deviceservice.aidl.IEMV
-import com.vfi.smartpos.deviceservice.aidl.IssuerUpdateHandler
 import com.vfi.smartpos.deviceservice.constdefine.ConstIPBOC
 import com.vfi.smartpos.deviceservice.constdefine.ConstPBOCHandler
 import kotlinx.coroutines.Dispatchers
@@ -268,15 +270,27 @@ class VFEmvHandler(var activity: Activity,var handler: Handler, var iemv: IEMV?,
             var removespace = hexString2String(applicationlabel)
             var finalstr = removespace.trimEnd()
             cardProcessedDataModal.setApplicationLabel(finalstr)
-            println("Application label ---> "+ finalstr)
+            println("Application label ---> " + finalstr)
         }
 
         val tlvcardissuer = iemv?.getCardData("5F28")   // card issuer country code  TAG
-        if(null != tlvcardissuer && !(tlvcardissuer.isEmpty())){
+        if (null != tlvcardissuer && !(tlvcardissuer.isEmpty())) {
             var cardissuercountrycode = Utility.byte2HexStr(tlvcardissuer)
             cardProcessedDataModal.setCardIssuerCountryCode(cardissuercountrycode)
-            println("Card issuer country code ---> "+ cardissuercountrycode)
+            println("Card issuer country code ---> " + cardissuercountrycode)
         }
+
+        //region========================Scheme AID==============
+        val tlvaid = iemv?.getCardData("84")   // card issuer country code  TAG
+        if (null != tlvaid && !(tlvaid.isEmpty())) {
+            var aid = Utility.byte2HexStr(tlvaid)
+
+            var aidstr = aid.subSequence(0, 10).toString()
+
+            cardProcessedDataModal.setAID(aidstr)
+            println("Aid  code ---> " + aidstr)
+        }
+        //endregion
 
         cardProcessedDataModal.setPinEntryFlag("0")
 

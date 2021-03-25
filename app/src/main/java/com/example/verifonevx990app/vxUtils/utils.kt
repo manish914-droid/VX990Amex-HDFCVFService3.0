@@ -928,7 +928,7 @@ object ROCProviderV2 {
                 if (l.length < 2) {
                     l = "0$l"
                 }
-                if (f == 0x9F10 && isAmex) {
+                if (f == 0x9F10 && CardAid.AMEX.aid == cardProcessedDataModal.getAID()) {
                     val c = l + PaxUtils.bcd2Str(v)
                     var le = Integer.toHexString(c.length / 2)
                     if (le.length < 2) {

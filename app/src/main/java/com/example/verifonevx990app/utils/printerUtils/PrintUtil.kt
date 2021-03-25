@@ -2593,11 +2593,17 @@ class PrintUtil(context: Context?) {
         printerCallback: (Boolean, Int) -> Unit
     ) {
         var currencySymbol: String? = "Rs"
+        var brandEmiData: BrandEMIDataTable? = null
         try {
             val tpt = runBlocking(Dispatchers.IO) { TerminalParameterTable.selectFromSchemeTable() }
             val issuerTAndCData = runBlocking(Dispatchers.IO) {
                 IssuerTAndCTable.selectIssuerTAndCDataByID(printerReceiptData.issuerId)
             }
+
+            if (printerReceiptData.transactionType == TransactionType.BRAND_EMI.type) {
+                brandEmiData = runBlocking(Dispatchers.IO) { BrandEMIDataTable.getAllEMIData() }
+            }
+
             if (!TextUtils.isEmpty(tpt?.currencySymbol)) {
                 currencySymbol = tpt?.currencySymbol
                 Log.d("TPTCurrencySymbol:- ", currencySymbol ?: "")
@@ -2715,20 +2721,19 @@ class PrintUtil(context: Context?) {
             alignLeftRightText(
                 textInLineFormatBundle,
                 "CARD ISSUER",
-                printerReceiptData.issuerName,
-                ": "
+                printerReceiptData.issuerName
             )
 
             if (!TextUtils.isEmpty(printerReceiptData.roi)) {
                 val rateOfInterest = "%.2f".format(printerReceiptData.roi.toFloat() / 100) + " %"
-                alignLeftRightText(textInLineFormatBundle, "ROI(p.a)", rateOfInterest, ": ")
+                alignLeftRightText(textInLineFormatBundle, "ROI(p.a)", rateOfInterest)
             }
+
 
             alignLeftRightText(
                 textInLineFormatBundle,
                 "TENURE",
-                "${printerReceiptData.tenure} Months",
-                ": "
+                "${printerReceiptData.tenure} Months"
             )
 
             var cashBackPercentHeadingText = ""
@@ -2901,6 +2906,43 @@ class PrintUtil(context: Context?) {
                 )
             }
             //endregion
+            printSeperator(textFormatBundle)
+
+            //region=====================Printing Merchant Brand Purchase Details:-
+            centerText(textFormatBundle, "-----**Product Details**-----", true)
+            if (brandEmiData != null) {
+                alignLeftRightText(
+                    textInLineFormatBundle,
+                    "Merch/Mfr Name",
+                    brandEmiData.brandName,
+                    ":"
+                )
+                alignLeftRightText(
+                    textInLineFormatBundle,
+                    "Product Category",
+                    brandEmiData.categoryName,
+                    ":"
+                )
+                alignLeftRightText(textInLineFormatBundle, "Product", brandEmiData.productName, ":")
+                if (!TextUtils.isEmpty(brandEmiData.imeiNumber)) {
+                    alignLeftRightText(
+                        textInLineFormatBundle,
+                        "Product IMEI No.",
+                        brandEmiData.imeiNumber,
+                        ":"
+                    )
+                }
+                if (!TextUtils.isEmpty(printerReceiptData.merchantMobileNumber)) {
+                    alignLeftRightText(
+                        textInLineFormatBundle,
+                        "Mobile No.",
+                        printerReceiptData.merchantMobileNumber,
+                        ":"
+                    )
+                }
+            }
+            //endregion
+            printSeperator(textFormatBundle)
 
             //region====================Printing DBD Wise TAndC==================
             if (!TextUtils.isEmpty(printerReceiptData.tenureWiseDBDTAndC)) {
@@ -2998,7 +3040,7 @@ class PrintUtil(context: Context?) {
             }
             //endregion
 
-            printer?.feedLine(2)
+            printer?.feedLine(4)
 
             // start print here and callback of printer:-
             printer?.startPrint(object : PrinterListener.Stub() {

@@ -395,6 +395,13 @@
     <string name="brand_emi_by_access_code">Brand EMI By Access Code</string>
     <string name="submit">SUBMIT</string>
     <string name="please_enter_access_code">Please Enter Access Code</string>
+    <string name="productName">Product Name</string>
+    <string name="categoryName">Category Name</string>
+    <string name="transactionAmount">Transaction Amount</string>
+    <string name="discountPercentage">Discount %</string>
+    <string name="cashbackPercentage">CashBack %</string>
+    <string name="cashback_amount">CashBack Amount</string>
+    <string name="netPayAmount">Net Pay Amount</string>
 
 
 </resources>

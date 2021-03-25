@@ -24,7 +24,6 @@ import com.example.verifonevx990app.main.PosEntryModeType
 import com.example.verifonevx990app.realmtables.TerminalCommunicationTable
 import com.example.verifonevx990app.transactions.EmvSetAidRid
 import com.example.verifonevx990app.utils.Utility
-import com.example.verifonevx990app.vxUtils.IsoDataWriter.Companion.TAG
 import com.vfi.smartpos.deviceservice.aidl.*
 import com.vfi.smartpos.deviceservice.constdefine.ConstIPinpad
 import kotlinx.coroutines.Dispatchers
@@ -86,20 +85,19 @@ object VFService {
                     vfDeviceInfo = vfDeviceService?.deviceInfo
                     vfBeeper = vfDeviceService?.beeper
                     vfPinPad = vfDeviceService?.getPinpad(1)
-                    vfPrinter= vfDeviceService?.printer
+                    vfPrinter = vfDeviceService?.printer
 
-                    var bundle: Bundle? = vfDeviceInfo?.deviceInfo
-                    var numericSerialnum: String? = bundle?.get("VRKSn") as String
+                    val bundle: Bundle? = vfDeviceInfo?.deviceInfo
+                    val numericSerialnum = (bundle?.get("VRKSn") ?: "") as String
 
                     if (numericSerialnum != null) {
                         Log.d("Device Numeric  No:- ", numericSerialnum)
                     }
 
-                    if(isNullOrEmpty(numericSerialnum)){
+                    if (isNullOrEmpty(numericSerialnum)) {
                         Log.d("Device  Serial No:- ", vfDeviceInfo?.serialNo ?: "")
                         AppPreference.saveString("serialNumber", vfDeviceInfo?.serialNo ?: "")
-                    }
-                    else{
+                    } else {
                         strnum = String()
                         var number: String? = bundle?.get("VRKSn") as String
 

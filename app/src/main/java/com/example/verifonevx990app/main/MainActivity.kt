@@ -1519,7 +1519,6 @@ class MainActivity : BaseActivity(), IFragmentRequest,
     }
 
     override fun onBackPressed() {
-
         if (binding?.mainDl?.isDrawerOpen(GravityCompat.START) == true) {
             binding?.mainDl?.closeDrawer(GravityCompat.START, true)
         } else {
@@ -2257,15 +2256,6 @@ enum class ConnectionError(val errorCode: Int) {
     NetworkError(504),
     Success(200)
 }
-enum class CardAid(val aid: String) {
-    Rupay("A0000005241010"),
-    Diners("A0000001523010"),
-    Jcb("A0000000651010"),
-    UnionPay1("A000000333010101"),
-    UnionPay2("A000000333010102"),
-    UnionPay3("A000000333010103"),
-    UnionPay4("A000000333010106")
-}
 
 //region==============================Enum Class for Splitter Types:-
 enum class SplitterTypes(var splitter: String) {
@@ -2296,6 +2286,16 @@ enum class IssuerID(var id: String) {
     HDFC_ISSUER_ID("50"),
     SBI_ISSUER_ID("52"),
     ICICI_ISSUER_ID("55")
+}
+//endregion
+
+//region======================ENUM FOR CARD AID=================
+enum class CardAid(val aid: String) {
+    Rupay("A000000524"),
+    Diners("A000000152"),
+    Jcb("A000000065"),
+    UnionPay("A000000333"),
+    AMEX("A000000025")
 }
 //endregion
 
