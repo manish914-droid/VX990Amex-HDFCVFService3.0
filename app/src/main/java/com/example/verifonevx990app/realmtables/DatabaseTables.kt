@@ -4213,6 +4213,19 @@ open class BrandEMIAccessDataModalTable() : RealmObject(), Parcelable {
         fun performOperation(param: BrandEMIAccessDataModalTable) =
             withRealm { it.executeTransaction { i -> i.insertOrUpdate(param) } }
 
+        //region====================Method to Get BrandEMIByAccessCode Data================
+        fun getBrandEMIByAccessCodeData(): BrandEMIAccessDataModalTable = runBlocking {
+            var result = BrandEMIAccessDataModalTable()
+            getRealm {
+                val re =
+                    it.copyFromRealm(it.where(BrandEMIAccessDataModalTable::class.java).findFirst())
+                if (re != null) result = re
+
+            }.await()
+            result
+        }
+        //endregion
+
         //region===================Method to Clear BrandEMI By AccessCode Table:-
         fun clear() =
             withRealm { it.executeTransaction { i -> i.delete(BrandEMIAccessDataModalTable::class.java) } }

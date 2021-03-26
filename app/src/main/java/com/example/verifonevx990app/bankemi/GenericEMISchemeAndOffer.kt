@@ -35,7 +35,7 @@ class GenericEMISchemeAndOffer(
         bankEMISchemesDataList.clear()
         bankEMIIssuerTAndCList.clear()
         runBlocking(Dispatchers.IO) {
-            brandEMIDataTable = BrandEMIDataTable()//BrandEMIDataTable.getAllEMIData()
+            brandEMIDataTable = BrandEMIDataTable.getAllEMIData()
         }
         field57Request =
             if (cardProcessedDataModal.getTransType() == TransactionType.BRAND_EMI.type)

@@ -6,10 +6,7 @@ import com.example.verifonevx990app.R
 import com.example.verifonevx990app.bankemi.BankEMIDataModal
 import com.example.verifonevx990app.bankemi.BankEMIIssuerTAndCDataModal
 import com.example.verifonevx990app.main.DetectCardType
-import com.example.verifonevx990app.realmtables.BrandEMIDataTable
-import com.example.verifonevx990app.realmtables.CardDataTable
-import com.example.verifonevx990app.realmtables.IssuerParameterTable
-import com.example.verifonevx990app.realmtables.TerminalParameterTable
+import com.example.verifonevx990app.realmtables.*
 import com.example.verifonevx990app.vxUtils.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
@@ -25,6 +22,7 @@ class CreateTransactionPacket(
 
     private var indicator: String? = null
     private var brandEMIDataTable: BrandEMIDataTable? = null
+    private var brandEMIByAccessCodeData: BrandEMIAccessDataModalTable? = null
 
     //Below method is used to create Transaction Packet in all cases:-
     init {
@@ -32,7 +30,13 @@ class CreateTransactionPacket(
     }
 
     override fun createTransactionPacket(): IsoDataWriter = IsoDataWriter().apply {
-        //     val batchFileDataTable = BatchFileDataTable.selectBatchData()
+        //Condition To Check TransactionType == BrandEMIByAccessCode if it is then fetch its value from DB:-
+        if (cardProcessedData.getTransType() == TransactionType.BRAND_EMI_BY_ACCESS_CODE.type) {
+            brandEMIByAccessCodeData =
+                runBlocking(Dispatchers.IO) { BrandEMIAccessDataModalTable.getBrandEMIByAccessCodeData() }
+        }
+
+
         if (cardProcessedData.getTransType() == TransactionType.BRAND_EMI.type) {
             brandEMIDataTable = runBlocking(Dispatchers.IO) { BrandEMIDataTable.getAllEMIData() }
         }
@@ -54,7 +58,17 @@ class CreateTransactionPacket(
 
             //Transaction Amount Field
             //val formattedTransAmount = "%.2f".format(cardProcessedData.getTransactionAmount()?.toDouble()).replace(".", "")
-            addField(4, addPad(cardProcessedData.getTransactionAmount().toString(), "0", 12, true))
+            if (cardProcessedData.getTransType() == TransactionType.BRAND_EMI_BY_ACCESS_CODE.type) {
+                addField(
+                    4,
+                    addPad(brandEMIByAccessCodeData?.transactionAmount ?: "", "0", 12, true)
+                )
+            } else {
+                addField(
+                    4,
+                    addPad(cardProcessedData.getTransactionAmount().toString(), "0", 12, true)
+                )
+            }
 
             //STAN(ROC) Field 11
             addField(11, ROCProviderV2.getRoc(AppPreference.getBankCode()).toString())
@@ -162,6 +176,18 @@ class CreateTransactionPacket(
                             "${bankEmiSchemeData?.netPay},${cardProcessedData.getMobileBillExtraData()?.first ?: cardProcessedData.getMobileBillExtraData()?.second ?: ""}," +
                             "${brandEMIDataTable?.imeiNumber ?: brandEMIDataTable?.serialNumber ?: ""},,,,0,${bankEmiSchemeData?.processingFee},${bankEmiSchemeData?.processingRate}," +
                             "${bankEmiSchemeData?.totalProcessingFee},,"
+                }
+
+                TransactionType.BRAND_EMI_BY_ACCESS_CODE.type -> {
+                    indicator = "$cardIndFirst|$firstTwoDigitFoCard|$cdtIndex|$accSellection," +
+                            "${cardProcessedData.getPanNumberData()?.substring(0, 8)}," +
+                            "${brandEMIByAccessCodeData?.issuerID},${brandEMIByAccessCodeData?.emiSchemeID},${brandEMIByAccessCodeData?.brandID}," +
+                            "${brandEMIByAccessCodeData?.productID},${brandEMIByAccessCodeData?.transactionAmount}," +
+                            "${brandEMIByAccessCodeData?.discountAmount},${brandEMIByAccessCodeData?.loanAmount},${brandEMIByAccessCodeData?.tenure}," +
+                            "${brandEMIByAccessCodeData?.interestAmount},${brandEMIByAccessCodeData?.emiAmount},${brandEMIByAccessCodeData?.cashBackAmount}," +
+                            "${brandEMIByAccessCodeData?.netPayAmount},${cardProcessedData.getMobileBillExtraData()?.first ?: cardProcessedData.getMobileBillExtraData()?.second ?: ""}," +
+                            "${/*brandEMIByAccessCodeData?.imeiNumber ?: */brandEMIByAccessCodeData?.productSerialCode ?: ""},,,,0,${brandEMIByAccessCodeData?.processingFee},${brandEMIByAccessCodeData?.processingFeeRate}," +
+                            "${brandEMIByAccessCodeData?.totalProcessingFee},${brandEMIByAccessCodeData?.emiCode},"
                 }
 
                 else -> {

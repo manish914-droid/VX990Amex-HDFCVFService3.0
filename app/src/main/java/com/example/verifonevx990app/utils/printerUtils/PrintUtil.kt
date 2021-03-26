@@ -2909,40 +2909,47 @@ class PrintUtil(context: Context?) {
             printSeperator(textFormatBundle)
 
             //region=====================Printing Merchant Brand Purchase Details:-
-            centerText(textFormatBundle, "-----**Product Details**-----", true)
-            if (brandEmiData != null) {
-                alignLeftRightText(
-                    textInLineFormatBundle,
-                    "Merch/Mfr Name",
-                    brandEmiData.brandName,
-                    ":"
-                )
-                alignLeftRightText(
-                    textInLineFormatBundle,
-                    "Product Category",
-                    brandEmiData.categoryName,
-                    ":"
-                )
-                alignLeftRightText(textInLineFormatBundle, "Product", brandEmiData.productName, ":")
-                if (!TextUtils.isEmpty(brandEmiData.imeiNumber)) {
+            if (printerReceiptData.transactionType == TransactionType.BRAND_EMI.type) {
+                centerText(textFormatBundle, "-----**Product Details**-----", true)
+                if (brandEmiData != null) {
                     alignLeftRightText(
                         textInLineFormatBundle,
-                        "Product IMEI No.",
-                        brandEmiData.imeiNumber,
+                        "Merch/Mfr Name",
+                        brandEmiData.brandName,
                         ":"
                     )
-                }
-                if (!TextUtils.isEmpty(printerReceiptData.merchantMobileNumber)) {
                     alignLeftRightText(
                         textInLineFormatBundle,
-                        "Mobile No.",
-                        printerReceiptData.merchantMobileNumber,
+                        "Product Category",
+                        brandEmiData.categoryName,
                         ":"
                     )
+                    alignLeftRightText(
+                        textInLineFormatBundle,
+                        "Product",
+                        brandEmiData.productName,
+                        ":"
+                    )
+                    if (!TextUtils.isEmpty(brandEmiData.imeiNumber)) {
+                        alignLeftRightText(
+                            textInLineFormatBundle,
+                            "Product IMEI No.",
+                            brandEmiData.imeiNumber,
+                            ":"
+                        )
+                    }
+                    if (!TextUtils.isEmpty(printerReceiptData.merchantMobileNumber)) {
+                        alignLeftRightText(
+                            textInLineFormatBundle,
+                            "Mobile No.",
+                            printerReceiptData.merchantMobileNumber,
+                            ":"
+                        )
+                    }
                 }
+                printSeperator(textFormatBundle)
             }
             //endregion
-            printSeperator(textFormatBundle)
 
             //region====================Printing DBD Wise TAndC==================
             if (!TextUtils.isEmpty(printerReceiptData.tenureWiseDBDTAndC)) {
@@ -3052,7 +3059,8 @@ class PrintUtil(context: Context?) {
                         EPrintCopyType.MERCHANT -> {
                             GlobalScope.launch(Dispatchers.Main) {
                                 if (printerReceiptData.transactionType == TransactionType.EMI_SALE.type ||
-                                    printerReceiptData.transactionType == TransactionType.BRAND_EMI.type
+                                    printerReceiptData.transactionType == TransactionType.BRAND_EMI.type ||
+                                    printerReceiptData.transactionType == TransactionType.BRAND_EMI_BY_ACCESS_CODE.type
                                 )
                                     (context as VFTransactionActivity).showMerchantAlertBox(
                                         this@PrintUtil,
