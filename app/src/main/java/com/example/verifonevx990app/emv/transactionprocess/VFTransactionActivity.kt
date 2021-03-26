@@ -199,9 +199,8 @@ class VFTransactionActivity : BaseActivity() {
                 }
 
             }
-        }
-        catch (ex: DeadObjectException){
-            println("Process card error1"+ex.message)
+        } catch (ex: DeadObjectException) {
+            println("Process card error1" + ex.message)
             Handler(Looper.getMainLooper()).postDelayed({
                 GlobalScope.launch {
                     VFService.connectToVFService(VerifoneApp.appContext)
@@ -209,10 +208,9 @@ class VFTransactionActivity : BaseActivity() {
                     doProcessCard()
                 }
             }, 200)
-        }
-        catch (e: RemoteException) {
+        } catch (e: RemoteException) {
             e.printStackTrace()
-            println("Process card error2"+e.message)
+            println("Process card error2" + e.message)
             Handler(Looper.getMainLooper()).postDelayed({
                 GlobalScope.launch {
                     VFService.connectToVFService(VerifoneApp.appContext)
@@ -220,9 +218,8 @@ class VFTransactionActivity : BaseActivity() {
                     doProcessCard()
                 }
             }, 200)
-        }
-        catch (ex: Exception) {
-            println("Process card error3"+ex.message)
+        } catch (ex: Exception) {
+            println("Process card error3" + ex.message)
             Handler(Looper.getMainLooper()).postDelayed({
                 GlobalScope.launch {
                     VFService.connectToVFService(VerifoneApp.appContext)
@@ -242,7 +239,7 @@ class VFTransactionActivity : BaseActivity() {
                     TransactionType.SALE.type, TransactionType.PRE_AUTH.type,
                     TransactionType.REFUND.type, TransactionType.CASH_AT_POS.type,
                     TransactionType.SALE_WITH_CASH.type, TransactionType.EMI_SALE.type,
-                    TransactionType.BRAND_EMI.type -> emvProcessNext(
+                    TransactionType.BRAND_EMI.type, TransactionType.TEST_EMI.type -> emvProcessNext(
                         cardProcessedData
                     )
                     else -> {
@@ -258,7 +255,8 @@ class VFTransactionActivity : BaseActivity() {
                     cardProcessedData.getTransType() == TransactionType.REFUND.type ||
                     cardProcessedData.getTransType() == TransactionType.CASH_AT_POS.type ||
                     cardProcessedData.getTransType() == TransactionType.SALE_WITH_CASH.type ||
-                    cardProcessedData.getTransType() == TransactionType.EMI_SALE.type
+                    cardProcessedData.getTransType() == TransactionType.EMI_SALE.type ||
+                    cardProcessedData.getTransType() == TransactionType.TEST_EMI.type
                 ) {
                     emvProcessNext(cardProcessedData)
                 } else {
@@ -429,7 +427,10 @@ class VFTransactionActivity : BaseActivity() {
     }
 
     //Below method is used to Sync Transaction Data To Server:-
-    private fun checkReversal(transactionISOByteArray: IsoDataWriter, cardProcessedDataModal: CardProcessedDataModal) {
+    private fun checkReversal(
+        transactionISOByteArray: IsoDataWriter,
+        cardProcessedDataModal: CardProcessedDataModal
+    ) {
         // If case Sale data sync to server
         if (TextUtils.isEmpty(AppPreference.getString(AppPreference.GENERIC_REVERSAL_KEY))) {
             val msg: String = getString(R.string.sale_data_sync)
@@ -539,26 +540,26 @@ class VFTransactionActivity : BaseActivity() {
                     //Condition for having a reversal(EMV CASE)
                     else if (!TextUtils.isEmpty(AppPreference.getString(AppPreference.GENERIC_REVERSAL_KEY))) {
                         //   checkForPrintReversalReceipt(this@VFTransactionActivity) {
-                            GlobalScope.launch(Dispatchers.Main) {
-                                alertBoxWithAction(null,
-                                    null,
-                                    getString(R.string.declined),
-                                    getString(R.string.emv_declined),
-                                    false,
-                                    getString(R.string.positive_button_ok),
-                                    { alertPositiveCallback ->
-                                        if (alertPositiveCallback) {
-                                            checkForPrintReversalReceipt(this@VFTransactionActivity) {}
-                                            syncOfflineSaleAndAskAutoSettlement(
-                                                autoSettlementCheck.substring(
-                                                    0,
-                                                    1
-                                                )
+                        GlobalScope.launch(Dispatchers.Main) {
+                            alertBoxWithAction(null,
+                                null,
+                                getString(R.string.declined),
+                                getString(R.string.emv_declined),
+                                false,
+                                getString(R.string.positive_button_ok),
+                                { alertPositiveCallback ->
+                                    if (alertPositiveCallback) {
+                                        checkForPrintReversalReceipt(this@VFTransactionActivity) {}
+                                        syncOfflineSaleAndAskAutoSettlement(
+                                            autoSettlementCheck.substring(
+                                                0,
+                                                1
                                             )
-                                        }
-                                    },
-                                    {})
-                            }
+                                        )
+                                    }
+                                },
+                                {})
+                        }
                         //  }
                     }
                 } else {
@@ -815,7 +816,12 @@ class VFTransactionActivity : BaseActivity() {
     }
 
     //Below function is used to deal with EMV Card Fallback when we insert EMV Card from other side then chip side:-
-    fun handleEMVFallbackFromError(title: String, msg: String, showCancelButton: Boolean, emvFromError: (Boolean) -> Unit) {
+    fun handleEMVFallbackFromError(
+        title: String,
+        msg: String,
+        showCancelButton: Boolean,
+        emvFromError: (Boolean) -> Unit
+    ) {
         GlobalScope.launch(Dispatchers.Main) {
             alertBoxWithAction(
                 null, null, title,
@@ -853,91 +859,95 @@ class VFTransactionActivity : BaseActivity() {
             )
         }
     }
-    fun checkEmiInstaEmi(cardProcessedDataModal: CardProcessedDataModal, transactionCallback: (CardProcessedDataModal) -> Unit) {
- /*       cardProcessedDataModal.setProcessingCode(transactionProcessingCode)
-        cardProcessedDataModal.setTransactionAmount(transactionalAmount)
-        cardProcessedDataModal.setOtherAmount(otherTransAmount)
-        cardProcessedDataModal.setTransType(transactionType)
-        cardProcessedDataModal.setMobileBillExtraData(Pair(mobileNumber, billNumber))
-        globalCardProcessedModel = cardProcessedDataModal
-        Log.d("CardProcessedData:- ", Gson().toJson(cardProcessedDataModal))
-        val maskedPan = cardProcessedDataModal.getPanNumberData()?.let {
-            getMaskedPan(TerminalParameterTable.selectFromSchemeTable(), it)
-        }
-        runOnUiThread {
-            binding?.atCardNoTv?.text = maskedPan
-            cardView_l.visibility = View.VISIBLE
-            tv_card_number_heading.visibility = View.VISIBLE
-            tv_insert_card.visibility = View.INVISIBLE
-            binding?.paymentGif?.visibility = View.INVISIBLE
-        }
-        //Below Different Type of Transaction check Based ISO Packet Generation happening:-
-        // processAccordingToCardType(cardProcessedDataModal)
 
-        var iptList = IssuerParameterTable.selectFromIssuerParameterTable()
-        iptList = iptList.filter { it.isActive == "1" }
+    fun checkEmiInstaEmi(
+        cardProcessedDataModal: CardProcessedDataModal,
+        transactionCallback: (CardProcessedDataModal) -> Unit
+    ) {
+        /*       cardProcessedDataModal.setProcessingCode(transactionProcessingCode)
+               cardProcessedDataModal.setTransactionAmount(transactionalAmount)
+               cardProcessedDataModal.setOtherAmount(otherTransAmount)
+               cardProcessedDataModal.setTransType(transactionType)
+               cardProcessedDataModal.setMobileBillExtraData(Pair(mobileNumber, billNumber))
+               globalCardProcessedModel = cardProcessedDataModal
+               Log.d("CardProcessedData:- ", Gson().toJson(cardProcessedDataModal))
+               val maskedPan = cardProcessedDataModal.getPanNumberData()?.let {
+                   getMaskedPan(TerminalParameterTable.selectFromSchemeTable(), it)
+               }
+               runOnUiThread {
+                   binding?.atCardNoTv?.text = maskedPan
+                   cardView_l.visibility = View.VISIBLE
+                   tv_card_number_heading.visibility = View.VISIBLE
+                   tv_insert_card.visibility = View.INVISIBLE
+                   binding?.paymentGif?.visibility = View.INVISIBLE
+               }
+               //Below Different Type of Transaction check Based ISO Packet Generation happening:-
+               // processAccordingToCardType(cardProcessedDataModal)
 
-
-        val temPan = cardProcessedDataModal.getPanNumberData()?.substring(0, 6)
-        var emiBin: EmiBinTable?
-        //  val temPan = track1.pan.substring(0, 6)
-        try {
-            emiBin = EmiBinTable.selectFromEmiBinTable().first { it.binValue == temPan }
-        }
-        catch (ex: NoSuchElementException) {
-            ex.printStackTrace()
-            emiBin = null
-            //println("No such element exception " + ex.message)
-        }
-        catch (ex: Exception) {
-            ex.printStackTrace()
-            emiBin = null
-            //println("No such element exception " + ex.message)
-        }
-
-        try {
-            iptList = iptList.filter { it.issuerId == emiBin?.issuerId }
-        } catch (ex: Exception) {
-            ex.printStackTrace()
-            iptList = emptyList()
-            //println("No itp list " + ex.message)
-        }
-
-        if (cardProcessedDataModal.getTransType() == TransactionType.SALE.type ||
-            cardProcessedDataModal.getTransType() == TransactionType.EMI_SALE.type ||
-            cardProcessedDataModal.getTransType() == TransactionType.BRAND_EMI.type
-        ) {
-
-            var limitAmt = 0f
-            if (tpt?.surChargeValue?.isNotEmpty()!!) {
-                limitAmt = try {
-                    tpt?.surChargeValue?.toFloat()!! / 100
-                } catch (ex: Exception) {
-                    0f
-                }
-            }
+               var iptList = IssuerParameterTable.selectFromIssuerParameterTable()
+               iptList = iptList.filter { it.isActive == "1" }
 
 
-            if (tpt?.surcharge?.isNotEmpty()!!) {
-                hasInstaEmi = try {
-                    tpt?.surcharge.equals("1")
-                } catch (ex: Exception) {
-                    false
-                }
-            }
+               val temPan = cardProcessedDataModal.getPanNumberData()?.substring(0, 6)
+               var emiBin: EmiBinTable?
+               //  val temPan = track1.pan.substring(0, 6)
+               try {
+                   emiBin = EmiBinTable.selectFromEmiBinTable().first { it.binValue == temPan }
+               }
+               catch (ex: NoSuchElementException) {
+                   ex.printStackTrace()
+                   emiBin = null
+                   //println("No such element exception " + ex.message)
+               }
+               catch (ex: Exception) {
+                   ex.printStackTrace()
+                   emiBin = null
+                   //println("No such element exception " + ex.message)
+               }
 
-            if (hasInstaEmi && transactionAmountValue.toFloat() >= limitAmt && null != emiBin && iptList.isNotEmpty()) {
-                GlobalScope.launch(Dispatchers.Main) {
-                    showEMISaleDialog(cardProcessedDataModal) {
-                        transactionCallback(it)
-                    }
-                }
-            } else {
-                transactionCallback(cardProcessedDataModal)
-                //  emvProcessNext(cardProcessedDataModal)
-            }
+               try {
+                   iptList = iptList.filter { it.issuerId == emiBin?.issuerId }
+               } catch (ex: Exception) {
+                   ex.printStackTrace()
+                   iptList = emptyList()
+                   //println("No itp list " + ex.message)
+               }
 
-        }*/
+               if (cardProcessedDataModal.getTransType() == TransactionType.SALE.type ||
+                   cardProcessedDataModal.getTransType() == TransactionType.EMI_SALE.type ||
+                   cardProcessedDataModal.getTransType() == TransactionType.BRAND_EMI.type
+               ) {
+
+                   var limitAmt = 0f
+                   if (tpt?.surChargeValue?.isNotEmpty()!!) {
+                       limitAmt = try {
+                           tpt?.surChargeValue?.toFloat()!! / 100
+                       } catch (ex: Exception) {
+                           0f
+                       }
+                   }
+
+
+                   if (tpt?.surcharge?.isNotEmpty()!!) {
+                       hasInstaEmi = try {
+                           tpt?.surcharge.equals("1")
+                       } catch (ex: Exception) {
+                           false
+                       }
+                   }
+
+                   if (hasInstaEmi && transactionAmountValue.toFloat() >= limitAmt && null != emiBin && iptList.isNotEmpty()) {
+                       GlobalScope.launch(Dispatchers.Main) {
+                           showEMISaleDialog(cardProcessedDataModal) {
+                               transactionCallback(it)
+                           }
+                       }
+                   } else {
+                       transactionCallback(cardProcessedDataModal)
+                       //  emvProcessNext(cardProcessedDataModal)
+                   }
+
+               }*/
         transactionCallback(cardProcessedDataModal)
 
     }
@@ -996,11 +1006,9 @@ class VFTransactionActivity : BaseActivity() {
                 dialog.show()
             }
 
-        }
-        catch (ex: WindowManager.BadTokenException) {
+        } catch (ex: WindowManager.BadTokenException) {
             ex.printStackTrace()
-        }
-        catch (ex: Exception) {
+        } catch (ex: Exception) {
             ex.printStackTrace()
         }
     }
@@ -1200,8 +1208,11 @@ class VFTransactionActivity : BaseActivity() {
                     binding?.paymentGif?.loadUrl("file:///android_asset/cardprocess.html")
                     binding?.manualEntryButton?.visibility = View.GONE
                     binding?.tvInsertCard?.visibility = View.GONE
-                    binding?.baseAmtTv?.text =
-                        (((emiSelectedData?.transactionAmount)?.toFloat())?.div(100)).toString()
+                    if (cardProcessedData.getTransType() == TransactionType.TEST_EMI.type)
+                        binding?.baseAmtTv?.text = "1.00"
+                    else
+                        binding?.baseAmtTv?.text =
+                            (((emiSelectedData?.transactionAmount)?.toFloat())?.div(100)).toString()
                 }
 
                 // Change By lucky  (No need to convert in paisa ie  multiply by 100 it already in paisa i.e multiplied by 100)
@@ -1210,43 +1221,73 @@ class VFTransactionActivity : BaseActivity() {
                 cardProcessedData.setTransactionAmount(emiSelectedTransactionAmount ?: 0L)
 
                 if (cardProcessedData.getTransType() == TransactionType.TEST_EMI.type) {
-                    VFService.showToast("Connect to Sale with 1 Ruppe transaction")
+
+                    VFService.showToast("Connect to BH...")
+                    Log.e("WWW", "-----")
                     cardProcessedData.setTransactionAmount(100)
-
-                }
-
-                DoEmv(
-                    this, pinHandler, cardProcessedData,
-                    ConstIPBOC.startEMV.intent.VALUE_cardType_smart_card
-                ) { cardProcessedDataModal ->
-                    Log.d("CardEMIData:- ", cardProcessedDataModal.toString())
-                    cardProcessedDataModal.setProcessingCode(transactionProcessingCode)
-                    cardProcessedDataModal.setTransactionAmount(
-                        emiSelectedTransactionAmount ?: 0L
-                    )
-                    cardProcessedDataModal.setOtherAmount(otherTransAmount)
-                    cardProcessedDataModal.setMobileBillExtraData(
-                        Pair(
-                            mobileNumber,
-                            billNumber
+                    DoEmv(
+                        this, pinHandler, cardProcessedData,
+                        ConstIPBOC.startEMV.intent.VALUE_cardType_smart_card
+                    ) { cardProcessedDataModal ->
+                        cardProcessedDataModal.setProcessingCode(transactionProcessingCode)
+                        cardProcessedDataModal.setTransactionAmount(100)
+                        cardProcessedDataModal.setOtherAmount(otherTransAmount)
+                        cardProcessedDataModal.setMobileBillExtraData(
+                            Pair(
+                                mobileNumber,
+                                billNumber
+                            )
                         )
-                    )
-                    globalCardProcessedModel = cardProcessedDataModal
-                    Log.d("CardProcessedData:- ", Gson().toJson(cardProcessedDataModal))
-                    val maskedPan = cardProcessedDataModal.getPanNumberData()?.let {
-                        getMaskedPan(TerminalParameterTable.selectFromSchemeTable(), it)
-                    }
-                    runOnUiThread {
-                        binding?.atCardNoTv?.text = maskedPan
-                        cardView_l.visibility = View.VISIBLE
-                        tv_card_number_heading.visibility = View.VISIBLE
-                        tv_insert_card.visibility = View.INVISIBLE
-                        binding?.paymentGif?.visibility = View.INVISIBLE
-                    }
-                    //Below Different Type of Transaction check Based ISO Packet Generation happening:-
-                    processAccordingToCardType(cardProcessedDataModal)
-                }
+                        //    localCardProcessedData.setTransType(transactionType)
+                        globalCardProcessedModel = cardProcessedDataModal
+                        Log.d("CardProcessedData:- ", Gson().toJson(cardProcessedDataModal))
+                        val maskedPan = cardProcessedDataModal.getPanNumberData()?.let {
+                            getMaskedPan(TerminalParameterTable.selectFromSchemeTable(), it)
+                        }
+                        runOnUiThread {
+                            binding?.atCardNoTv?.text = maskedPan
+                            cardView_l.visibility = View.VISIBLE
+                            tv_card_number_heading.visibility = View.VISIBLE
+                            tv_insert_card.visibility = View.INVISIBLE
+                            binding?.paymentGif?.visibility = View.INVISIBLE
+                        }
+                        //Below Different Type of Transaction check Based ISO Packet Generation happening:-
+                        processAccordingToCardType(cardProcessedDataModal)
 
+                    }
+                } else {
+                    DoEmv(
+                        this, pinHandler, cardProcessedData,
+                        ConstIPBOC.startEMV.intent.VALUE_cardType_smart_card
+                    ) { cardProcessedDataModal ->
+                        Log.d("CardEMIData:- ", cardProcessedDataModal.toString())
+                        cardProcessedDataModal.setProcessingCode(transactionProcessingCode)
+                        cardProcessedDataModal.setTransactionAmount(
+                            emiSelectedTransactionAmount ?: 0L
+                        )
+                        cardProcessedDataModal.setOtherAmount(otherTransAmount)
+                        cardProcessedDataModal.setMobileBillExtraData(
+                            Pair(
+                                mobileNumber,
+                                billNumber
+                            )
+                        )
+                        globalCardProcessedModel = cardProcessedDataModal
+                        Log.d("CardProcessedData:- ", Gson().toJson(cardProcessedDataModal))
+                        val maskedPan = cardProcessedDataModal.getPanNumberData()?.let {
+                            getMaskedPan(TerminalParameterTable.selectFromSchemeTable(), it)
+                        }
+                        runOnUiThread {
+                            binding?.atCardNoTv?.text = maskedPan
+                            cardView_l.visibility = View.VISIBLE
+                            tv_card_number_heading.visibility = View.VISIBLE
+                            tv_insert_card.visibility = View.INVISIBLE
+                            binding?.paymentGif?.visibility = View.INVISIBLE
+                        }
+                        //Below Different Type of Transaction check Based ISO Packet Generation happening:-
+                        processAccordingToCardType(cardProcessedDataModal)
+                    }
+                }
             }
 
         }
@@ -1271,30 +1312,43 @@ class VFTransactionActivity : BaseActivity() {
         val offlineSaleData = BatchFileDataTable.selectOfflineSaleBatchData()
         if (offlineSaleData.size > 0) {
             showProgress(getString(R.string.please_wait_offline_sale_sync))
-            SyncOfflineSaleToHost(this@VFTransactionActivity, autoSettleCode) { offlineSaleStatus, validationMsg ->
+            SyncOfflineSaleToHost(
+                this@VFTransactionActivity,
+                autoSettleCode
+            ) { offlineSaleStatus, validationMsg ->
                 if (offlineSaleStatus == 1)
                     GlobalScope.launch(Dispatchers.Main) {
                         hideProgress()
                         delay(1000)
                         if (autoSettleCode == "1") {
-                            alertBoxWithAction(null, null, getString(R.string.batch_settle),
+                            alertBoxWithAction(
+                                null, null, getString(R.string.batch_settle),
                                 getString(R.string.do_you_want_to_settle_batch),
                                 true, getString(R.string.positive_button_yes), {
                                     startActivity(
-                                        Intent(this@VFTransactionActivity, MainActivity::class.java).apply {
+                                        Intent(
+                                            this@VFTransactionActivity,
+                                            MainActivity::class.java
+                                        ).apply {
                                             putExtra("appUpdateFromSale", true)
-                                            flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                                            flags =
+                                                Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_CLEAR_TASK
                                         })
                                 }, {
                                     startActivity(
-                                        Intent(this@VFTransactionActivity, MainActivity::class.java).apply {
-                                            flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                                        Intent(
+                                            this@VFTransactionActivity,
+                                            MainActivity::class.java
+                                        ).apply {
+                                            flags =
+                                                Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_CLEAR_TASK
                                         })
                                 })
                         } else {
                             startActivity(
                                 Intent(this@VFTransactionActivity, MainActivity::class.java).apply {
-                                    flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                                    flags =
+                                        Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_CLEAR_TASK
                                 })
                         }
                     }
@@ -1304,10 +1358,13 @@ class VFTransactionActivity : BaseActivity() {
                         //VFService.showToast(validationMsg)
                         alertBoxWithAction(null, null,
                             getString(R.string.offline_sale_uploading),
-                            getString(R.string.fail)+validationMsg,
+                            getString(R.string.fail) + validationMsg,
                             false, getString(R.string.positive_button_ok), {
                                 startActivity(
-                                    Intent(this@VFTransactionActivity, MainActivity::class.java).apply {
+                                    Intent(
+                                        this@VFTransactionActivity,
+                                        MainActivity::class.java
+                                    ).apply {
                                         flags =
                                             Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_CLEAR_TASK
                                     })
@@ -1320,38 +1377,41 @@ class VFTransactionActivity : BaseActivity() {
             }
         } else {
             GlobalScope.launch(Dispatchers.Main) {
-            if (autoSettleCode == "1") {
-                alertBoxWithAction(null, null,
-                    getString(R.string.batch_settle),
-                    getString(R.string.do_you_want_to_settle_batch),
-                    true, getString(R.string.positive_button_yes), {
-                        startActivity(
-                            Intent(this@VFTransactionActivity, MainActivity::class.java).apply {
-                                putExtra("appUpdateFromSale", true)
-                                flags =
-                                    Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_CLEAR_TASK
-                            })
-                    }, {
-                        startActivity(
-                            Intent(this@VFTransactionActivity, MainActivity::class.java).apply {
-                                flags =
-                                    Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_CLEAR_TASK
-                            })
-                    })
-            } else {
-                GlobalScope.launch(Dispatchers.Main) {
-                    startActivity(
-                        Intent(this@VFTransactionActivity, MainActivity::class.java).apply {
-                            flags =
-                                Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                if (autoSettleCode == "1") {
+                    alertBoxWithAction(null, null,
+                        getString(R.string.batch_settle),
+                        getString(R.string.do_you_want_to_settle_batch),
+                        true, getString(R.string.positive_button_yes), {
+                            startActivity(
+                                Intent(this@VFTransactionActivity, MainActivity::class.java).apply {
+                                    putExtra("appUpdateFromSale", true)
+                                    flags =
+                                        Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                                })
+                        }, {
+                            startActivity(
+                                Intent(this@VFTransactionActivity, MainActivity::class.java).apply {
+                                    flags =
+                                        Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                                })
                         })
+                } else {
+                    GlobalScope.launch(Dispatchers.Main) {
+                        startActivity(
+                            Intent(this@VFTransactionActivity, MainActivity::class.java).apply {
+                                flags =
+                                    Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                            })
+                    }
                 }
             }
         }
-        }
     }
 
-    private fun initializePinInputListener(globalCardProcessedModel: CardProcessedDataModal, emiCustomerDetails: EmiCustomerDetails?) {
+    private fun initializePinInputListener(
+        globalCardProcessedModel: CardProcessedDataModal,
+        emiCustomerDetails: EmiCustomerDetails?
+    ) {
         VFService.pinInputListener = object : PinInputListener.Stub() {
             @Throws(RemoteException::class)
             override fun onInput(len: Int, key: Int) {
@@ -1372,7 +1432,10 @@ class VFTransactionActivity : BaseActivity() {
                 globalCardProcessedModel.setPosEntryMode(PosEntryModeType.POS_ENTRY_SWIPED_NO4DBC_PIN.posEntry.toString())
                 globalCardProcessedModel.setApplicationPanSequenceValue("00")
 
-                val transactionEMIISO = CreateEMITransactionPacket(globalCardProcessedModel, emiCustomerDetails).createTransactionPacket()
+                val transactionEMIISO = CreateEMITransactionPacket(
+                    globalCardProcessedModel,
+                    emiCustomerDetails
+                ).createTransactionPacket()
                 logger("Transaction REQUEST PACKET --->>", transactionEMIISO.isoMap, "e")
                 //runOnUiThread { showProgress(getString(R.string.sale_data_sync)) }
                 GlobalScope.launch(Dispatchers.IO) {
@@ -1420,7 +1483,8 @@ class VFTransactionActivity : BaseActivity() {
                 globalCardProcessedModel.setPosEntryMode(PosEntryModeType.POS_ENTRY_SWIPED_NO4DBC_PIN.posEntry.toString())
                 globalCardProcessedModel.setApplicationPanSequenceValue("00")
 
-                val transactionISO = CreateTransactionPacket(globalCardProcessedModel).createTransactionPacket()
+                val transactionISO =
+                    CreateTransactionPacket(globalCardProcessedModel).createTransactionPacket()
                 logger("Transaction REQUEST PACKET --->>", transactionISO.isoMap, "e")
                 //    runOnUiThread { showProgress(getString(R.string.sale_data_sync)) }
                 GlobalScope.launch(Dispatchers.IO) {

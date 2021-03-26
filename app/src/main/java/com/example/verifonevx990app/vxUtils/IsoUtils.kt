@@ -100,8 +100,8 @@ enum class TransactionType(
     EMI_MASTER_DATA(31, ProcessingCode.BANK_EMI, "BRAND EMI"),
     EMI_ENQUIRY(32, ProcessingCode.BANK_EMI, "EMI ENQUIRY"),
     BRAND_EMI(33, ProcessingCode.BRAND_EMI, "BRAND EMI"),
-    BRAND_EMI_BY_ACCESS_CODE(34, ProcessingCode.BRAND_EMI, "BRAND EMI BY ACCESS CODE"),
     TEST_EMI(34, ProcessingCode.BRAND_EMI, "BRAND EMI"),
+    BRAND_EMI_BY_ACCESS_CODE(35, ProcessingCode.BRAND_EMI, "BRAND EMI BY ACCESS CODE"),
 }
 
 

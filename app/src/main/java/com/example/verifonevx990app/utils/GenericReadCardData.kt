@@ -104,6 +104,7 @@ class GenericReadCardData(
         }
 
         readCardCallback(cardBinValue ?: "")
+
     }
 
     override fun onTransactionResult(result: Int, data: Bundle?) {

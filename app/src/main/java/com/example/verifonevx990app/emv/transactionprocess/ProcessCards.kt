@@ -427,6 +427,9 @@ class ProcessCard(
                                     ConstIPBOC.startEMV.processType.full_process,
                                     Bundle(),
                                     GenericReadCardData(activity, iemv) { cardBinValue ->
+                                        iemv?.stopCheckCard()
+                                        iemv?.abortEMV()
+                                        Log.e("bb CC", "------->>")
                                         if (!TextUtils.isEmpty(cardBinValue)) {
                                             GlobalScope.launch(Dispatchers.Main) { (activity as VFTransactionActivity).showProgress();iemv?.stopCheckCard() }
                                             GenericEMISchemeAndOffer(
