@@ -2759,8 +2759,7 @@ class PrintUtil(context: Context?) {
                 alignLeftRightText(
                     textInLineFormatBundle,
                     cashBackPercentHeadingText,
-                    printerReceiptData.cashBackCalculatedValue,
-                    ":  $currencySymbol "
+                    printerReceiptData.cashBackCalculatedValue
                 )
             }
             //endregion
@@ -2801,8 +2800,8 @@ class PrintUtil(context: Context?) {
                 val discAmount = "%.2f".format(printerReceiptData.cashDiscountAmt.toFloat() / 100)
                 alignLeftRightText(
                     textInLineFormatBundle,
-                    "DISCOUNT ",
                     discountPercentHeadingText,
+                    discAmount,
                     ":  $currencySymbol "
                 )
             }
@@ -2812,7 +2811,6 @@ class PrintUtil(context: Context?) {
                     textInLineFormatBundle,
                     discountAmountHeadingText,
                     printerReceiptData.discountCalculatedValue,
-                    ":  $currencySymbol "
                 )
             }
 

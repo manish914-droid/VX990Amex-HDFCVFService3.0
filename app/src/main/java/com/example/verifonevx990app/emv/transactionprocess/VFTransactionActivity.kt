@@ -239,7 +239,7 @@ class VFTransactionActivity : BaseActivity() {
                     TransactionType.SALE.type, TransactionType.PRE_AUTH.type,
                     TransactionType.REFUND.type, TransactionType.CASH_AT_POS.type,
                     TransactionType.SALE_WITH_CASH.type, TransactionType.EMI_SALE.type,
-                    TransactionType.BRAND_EMI.type -> emvProcessNext(
+                    TransactionType.BRAND_EMI.type, TransactionType.BRAND_EMI_BY_ACCESS_CODE.type -> emvProcessNext(
                         cardProcessedData
                     )
                     else -> {
@@ -255,7 +255,9 @@ class VFTransactionActivity : BaseActivity() {
                     cardProcessedData.getTransType() == TransactionType.REFUND.type ||
                     cardProcessedData.getTransType() == TransactionType.CASH_AT_POS.type ||
                     cardProcessedData.getTransType() == TransactionType.SALE_WITH_CASH.type ||
-                    cardProcessedData.getTransType() == TransactionType.EMI_SALE.type
+                    cardProcessedData.getTransType() == TransactionType.EMI_SALE.type ||
+                    cardProcessedData.getTransType() == TransactionType.BRAND_EMI.type ||
+                    cardProcessedData.getTransType() == TransactionType.BRAND_EMI_BY_ACCESS_CODE.type
                 ) {
                     emvProcessNext(cardProcessedData)
                 } else {
@@ -477,7 +479,8 @@ class VFTransactionActivity : BaseActivity() {
                         )
                         { stubbedData ->
                             if (cardProcessedDataModal.getTransType() == TransactionType.EMI_SALE.type ||
-                                cardProcessedDataModal.getTransType() == TransactionType.BRAND_EMI.type
+                                cardProcessedDataModal.getTransType() == TransactionType.BRAND_EMI.type ||
+                                cardProcessedDataModal.getTransType() == TransactionType.BRAND_EMI_BY_ACCESS_CODE.type
                             ) {
                                 stubEMI(stubbedData, emiSelectedData, emiTAndCData) { data ->
                                     Log.d("StubbedEMIData:- ", data.toString())

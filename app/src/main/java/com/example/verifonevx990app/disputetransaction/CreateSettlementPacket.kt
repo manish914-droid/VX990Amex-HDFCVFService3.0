@@ -19,24 +19,6 @@ class CreateSettlementPacket(
             //Processing Code:-
             addField(3, settlementProcessingCode ?: ProcessingCode.SETTLEMENT.code)
 
-            /*   //adding stan (padding of stan is internally handled by iso) No need of this
-               var settlementRoc = 0
-               if (AppPreference.getIntData(PrefConstant.SETTLEMENT_ROC_INCREMENT.keyName.toString()) == 0) {
-                   settlementRoc = if (batchList.size > 0)
-                       (batchList[batchList.size - 1].roc).toInt()
-                   else
-                       ROCProviderV2.getRoc(AppPreference.getBankCode()).toInt()
-                   AppPreference.setIntData(
-                       PrefConstant.SETTLEMENT_ROC_INCREMENT.keyName.toString(),
-                       settlementRoc
-                   )
-
-               } else {
-                   settlementRoc =
-                       AppPreference.getIntData(PrefConstant.SETTLEMENT_ROC_INCREMENT.keyName.toString())
-               }
-   */
-
             //ROC will not go in case of AMEX on all PORT but for HDFC it was mandatory:-
             // Sending ROC in case of HDFC ........
             addField(11, ROCProviderV2.getRoc(AppPreference.getBankCode()).toString())
@@ -147,8 +129,6 @@ class CreateSettlementPacket(
             } else {
                 addFieldByHex(63, addPad(0, "0", 90, toLeft = false))
             }
-
-
         }
         logger("SETTLEMENT REQ PACKET -->", this.isoMap, "e")
 

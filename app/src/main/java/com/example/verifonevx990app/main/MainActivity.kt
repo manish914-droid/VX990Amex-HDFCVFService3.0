@@ -122,12 +122,12 @@ class MainActivity : BaseActivity(), IFragmentRequest,
         initUI()
         decideHome()
 
-        Handler().postDelayed({
+        /*Handler().postDelayed({
             VFService.setAidRid(
                 addPad("000000", "0", 12, true),
                 addPad("000000", "0", 12, true)
             )
-        }, 2000)
+        }, 2000)*/
 
         refreshToolbarLogos(this)
         Log.d("AppVerAndRev:- ", getAppVersionNameAndRevisionID())
@@ -1318,18 +1318,25 @@ class MainActivity : BaseActivity(), IFragmentRequest,
             }
 
             EDashboardItem.BRAND_EMI -> {
-                if (checkInternetConnection()) {
-                    transactFragment(BrandEMIMasterCategoryFragment().apply {
-                        arguments = Bundle().apply {
-                            putSerializable("type", action)
-                            putString(
-                                INPUT_SUB_HEADING,
-                                SubHeaderTitle.Brand_EMI_Master_Category.title
-                            )
-                        }
-                    })
+                if (!AppPreference.getBoolean(PrefConstant.BLOCK_MENU_OPTIONS.keyName.toString()) &&
+                    !AppPreference.getBoolean(PrefConstant.INSERT_PPK_DPK.keyName.toString()) &&
+                    !AppPreference.getBoolean(PrefConstant.INIT_AFTER_SETTLEMENT.keyName.toString())
+                ) {
+                    if (checkInternetConnection()) {
+                        transactFragment(BrandEMIMasterCategoryFragment().apply {
+                            arguments = Bundle().apply {
+                                putSerializable("type", action)
+                                putString(
+                                    INPUT_SUB_HEADING,
+                                    SubHeaderTitle.Brand_EMI_Master_Category.title
+                                )
+                            }
+                        })
+                    } else {
+                        VFService.showToast(getString(R.string.no_internet_available_please_check_your_internet))
+                    }
                 } else {
-                    VFService.showToast(getString(R.string.no_internet_available_please_check_your_internet))
+                    checkAndPerformOperation()
                 }
             }
 
@@ -1388,64 +1395,74 @@ class MainActivity : BaseActivity(), IFragmentRequest,
             }
 
             EDashboardItem.EMI_PRO -> {
-                val data = runBlocking(Dispatchers.IO) { IssuerTAndCTable.getAllIssuerTAndCData() }
-                if (data.isEmpty()) {
-                    if (checkInternetConnection()) {
-                        Log.d("Bank EMI Clicked:- ", "Clicked")
-                        GenericEMIIssuerTAndC { issuerTermsAndConditionData, issuerHostResponseCodeAndMsg ->
-                            val issuerTAndCData = issuerTermsAndConditionData.first
-                            val responseBool = issuerTermsAndConditionData.second
-                            if (issuerTAndCData.isNotEmpty() && responseBool) {
-                                //region================Insert IssuerTAndC and Brand TAndC in DB:-
-                                //Issuer TAndC Inserting:-
-                                for (i in 0 until issuerTAndCData.size) {
-                                    val issuerModel = IssuerTAndCTable()
-                                    if (!TextUtils.isEmpty(issuerTAndCData[i])) {
-                                        val splitData = parseDataListWithSplitter(
-                                            SplitterTypes.CARET.splitter,
-                                            issuerTAndCData[i]
-                                        )
+                if (!AppPreference.getBoolean(PrefConstant.BLOCK_MENU_OPTIONS.keyName.toString()) &&
+                    !AppPreference.getBoolean(PrefConstant.INSERT_PPK_DPK.keyName.toString()) &&
+                    !AppPreference.getBoolean(PrefConstant.INIT_AFTER_SETTLEMENT.keyName.toString())
+                ) {
+                    val data =
+                        runBlocking(Dispatchers.IO) { IssuerTAndCTable.getAllIssuerTAndCData() }
+                    if (data.isEmpty()) {
+                        if (checkInternetConnection()) {
+                            showProgress()
+                            Log.d("Bank EMI Clicked:- ", "Clicked")
+                            GenericEMIIssuerTAndC { issuerTermsAndConditionData, issuerHostResponseCodeAndMsg ->
+                                val issuerTAndCData = issuerTermsAndConditionData.first
+                                val responseBool = issuerTermsAndConditionData.second
+                                if (issuerTAndCData.isNotEmpty() && responseBool) {
+                                    //region================Insert IssuerTAndC and Brand TAndC in DB:-
+                                    //Issuer TAndC Inserting:-
+                                    for (i in 0 until issuerTAndCData.size) {
+                                        val issuerModel = IssuerTAndCTable()
+                                        if (!TextUtils.isEmpty(issuerTAndCData[i])) {
+                                            val splitData = parseDataListWithSplitter(
+                                                SplitterTypes.CARET.splitter,
+                                                issuerTAndCData[i]
+                                            )
 
-                                        if (splitData.size > 2) {
-                                            issuerModel.issuerId = splitData[0]
-                                            issuerModel.headerTAndC = splitData[1]
-                                            issuerModel.footerTAndC = splitData[2]
-                                        } else {
-                                            issuerModel.issuerId = splitData[0]
-                                            issuerModel.headerTAndC = splitData[1]
-                                        }
+                                            if (splitData.size > 2) {
+                                                issuerModel.issuerId = splitData[0]
+                                                issuerModel.headerTAndC = splitData[1]
+                                                issuerModel.footerTAndC = splitData[2]
+                                            } else {
+                                                issuerModel.issuerId = splitData[0]
+                                                issuerModel.headerTAndC = splitData[1]
+                                            }
 
-                                        runBlocking(Dispatchers.IO) {
-                                            IssuerTAndCTable.performOperation(issuerModel)
+                                            runBlocking(Dispatchers.IO) {
+                                                IssuerTAndCTable.performOperation(issuerModel)
+                                            }
                                         }
                                     }
+                                    GlobalScope.launch(Dispatchers.Main) { hideProgress() }
+                                    transactFragment(BrandEMIByAccessCodeFragment().apply {
+                                        arguments = Bundle().apply {
+                                            putSerializable("type", action)
+                                            putString(
+                                                INPUT_SUB_HEADING,
+                                                SubHeaderTitle.Brand_EMI_BY_ACCESS_CODE.title
+                                            )
+                                        }
+                                    })
+                                } else {
+                                    VFService.showToast(issuerHostResponseCodeAndMsg.second)
                                 }
-                                transactFragment(BrandEMIByAccessCodeFragment().apply {
-                                    arguments = Bundle().apply {
-                                        putSerializable("type", action)
-                                        putString(
-                                            INPUT_SUB_HEADING,
-                                            SubHeaderTitle.Brand_EMI_BY_ACCESS_CODE.title
-                                        )
-                                    }
-                                })
-                            } else {
-                                VFService.showToast(issuerHostResponseCodeAndMsg.second)
                             }
+                        } else {
+                            VFService.showToast(getString(R.string.no_internet_available_please_check_your_internet))
                         }
                     } else {
-                        VFService.showToast(getString(R.string.no_internet_available_please_check_your_internet))
+                        transactFragment(BrandEMIByAccessCodeFragment().apply {
+                            arguments = Bundle().apply {
+                                putSerializable("type", action)
+                                putString(
+                                    INPUT_SUB_HEADING,
+                                    SubHeaderTitle.Brand_EMI_BY_ACCESS_CODE.title
+                                )
+                            }
+                        })
                     }
                 } else {
-                    transactFragment(BrandEMIByAccessCodeFragment().apply {
-                        arguments = Bundle().apply {
-                            putSerializable("type", action)
-                            putString(
-                                INPUT_SUB_HEADING,
-                                SubHeaderTitle.Brand_EMI_BY_ACCESS_CODE.title
-                            )
-                        }
-                    })
+                    checkAndPerformOperation()
                 }
             }
 
@@ -1744,7 +1761,8 @@ class MainActivity : BaseActivity(), IFragmentRequest,
                         )
 
                         AppPreference.saveBoolean(
-                            PrefConstant.SETTLE_BATCH_SUCCESS.keyName.toString(), false
+                            PrefConstant.SETTLE_BATCH_SUCCESS.keyName.toString(),
+                            false
                         )
 
                         Log.d("Success Data:- ", result)
@@ -1768,7 +1786,8 @@ class MainActivity : BaseActivity(), IFragmentRequest,
                             AppPreference.getIntData(PrefConstant.SETTLEMENT_ROC_INCREMENT.keyName.toString()) + 1
 
                         AppPreference.setIntData(
-                            PrefConstant.SETTLEMENT_ROC_INCREMENT.keyName.toString(), settlement_roc
+                            PrefConstant.SETTLEMENT_ROC_INCREMENT.keyName.toString(),
+                            settlement_roc
                         )
 
                         PrintUtil(this).printSettlementReport(this, batchList, true) {

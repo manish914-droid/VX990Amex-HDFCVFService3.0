@@ -46,7 +46,7 @@ class SettlementFragment : Fragment(R.layout.activity_settlement_view) {
         settlement_batch_btn = view.findViewById(R.id.settlement_batch_btn)
         back_image_button = view.findViewById(R.id.back_image_button)
         sub_header_text = view.findViewById(R.id.sub_header_text)
-        back_image_button?.setOnClickListener { fragmentManager?.popBackStackImmediate() }
+        back_image_button?.setOnClickListener { parentFragmentManager.popBackStackImmediate() }
         sub_header_text?.text = title
         lv_heading_view = view.findViewById(R.id.lv_heading_view)
         empty_view_placeholder = view.findViewById(R.id.empty_view_placeholder)
@@ -64,7 +64,7 @@ class SettlementFragment : Fragment(R.layout.activity_settlement_view) {
                         GlobalScope.launch(Dispatchers.Main) {
                             (activity as MainActivity).hideProgress()
                             if (VFService.vfPrinter?.status != 240 && VFService.vfPrinter?.status == 0) {
-                                if (batchList.size > 0) {
+                                /* if (batchList.size > 0) {*/
                                     (activity as MainActivity).alertBoxWithAction(
                                         null,
                                         null,
@@ -147,11 +147,11 @@ class SettlementFragment : Fragment(R.layout.activity_settlement_view) {
                                             }
                                         },
                                         { navigateToMain() })
-                                } else
-                                    GlobalScope.launch(Dispatchers.Main) {
-                                        enableDisableSettlementButton(true)
-                                        VFService.showToast(getString(R.string.empty_batch_data))
-                                    }
+                                /* } else
+                                     GlobalScope.launch(Dispatchers.Main) {
+                                         enableDisableSettlementButton(true)
+                                         VFService.showToast(getString(R.string.empty_batch_data))
+                                     }*/
                             } else {
                                 enableDisableSettlementButton(true)
                                 VFService.showToast(getString(R.string.printing_roll_error))
@@ -189,7 +189,7 @@ class SettlementFragment : Fragment(R.layout.activity_settlement_view) {
                                 GlobalScope.launch(Dispatchers.Main) {
                                     (activity as MainActivity).hideProgress()
                                     if (VFService.vfPrinter?.status != 240 && VFService.vfPrinter?.status == 0) {
-                                        if (batchList.size > 0) {
+                                        /* if (batchList.size > 0) {*/
                                             (activity as MainActivity).alertBoxWithAction(
                                                 null,
                                                 null,
@@ -276,11 +276,11 @@ class SettlementFragment : Fragment(R.layout.activity_settlement_view) {
                                                     }
                                                 },
                                                 { navigateToMain() })
-                                        } else
-                                            GlobalScope.launch(Dispatchers.Main) {
-                                                enableDisableSettlementButton(true)
-                                                VFService.showToast(getString(R.string.empty_batch_data))
-                                            }
+                                        /* } else
+                                             GlobalScope.launch(Dispatchers.Main) {
+                                                 enableDisableSettlementButton(true)
+                                                 VFService.showToast(getString(R.string.empty_batch_data))
+                                             }*/
                                     } else {
                                         enableDisableSettlementButton(true)
                                         (activity as MainActivity).hideProgress()
@@ -317,7 +317,6 @@ class SettlementFragment : Fragment(R.layout.activity_settlement_view) {
 
     //region==============================method to enable/disable settlement Floating button:-
     private fun enableDisableSettlementButton(isEnable: Boolean) {
-
         settlement_batch_btn?.isEnabled = isEnable
     }
     //endregion
@@ -340,12 +339,10 @@ class SettlementFragment : Fragment(R.layout.activity_settlement_view) {
     private fun conditionBasedShowHideViews(showStatus: Boolean) {
         if(!showStatus){
             lv_heading_view?.visibility = View.GONE
-            settlement_batch_btn?.visibility = View.GONE
             settlement_rv?.visibility = View.GONE
             empty_view_placeholder?.visibility = View.VISIBLE
         } else {
             lv_heading_view?.visibility = View.VISIBLE
-            settlement_batch_btn?.visibility = View.VISIBLE
             settlement_rv?.visibility = View.VISIBLE
             empty_view_placeholder?.visibility = View.GONE
         }

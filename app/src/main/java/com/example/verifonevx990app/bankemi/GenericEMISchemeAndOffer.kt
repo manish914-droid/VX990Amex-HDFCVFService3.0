@@ -34,19 +34,17 @@ class GenericEMISchemeAndOffer(
     init {
         bankEMISchemesDataList.clear()
         bankEMIIssuerTAndCList.clear()
-        runBlocking(Dispatchers.IO) {
-            brandEMIDataTable = BrandEMIDataTable.getAllEMIData()
-        }
         field57Request =
-            if (cardProcessedDataModal.getTransType() == TransactionType.BRAND_EMI.type)
+            if (cardProcessedDataModal.getTransType() == TransactionType.BRAND_EMI.type) {
+                runBlocking(Dispatchers.IO) {
+                    brandEMIDataTable = BrandEMIDataTable.getAllEMIData()
+                }
                 "$bankEMIRequestCode^0^${brandEMIDataTable?.brandID}^${brandEMIDataTable?.productID}^^${
-                    cardBinValue.substring(
-                        0,
-                        8
-                    )
+                    cardBinValue.substring(0, 8)
                 }^$transactionAmount"
-            else
+            } else {
                 "$bankEMIRequestCode^0^1^0^^${cardBinValue.substring(0, 8)}^$transactionAmount"
+            }
         GlobalScope.launch(Dispatchers.IO) {
             fetchBankEMIDetailsFromHost()
         }
