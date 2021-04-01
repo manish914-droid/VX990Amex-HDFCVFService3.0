@@ -100,6 +100,10 @@ class CreateSettlementPacket(
                             saleCount = saleCount.plus(1)
                             saleAmount = saleAmount.plus(batchList[i].totalAmmount.toLong())
                         }
+                        TransactionType.TEST_EMI.type -> {
+                            saleCount = saleCount.plus(1)
+                            saleAmount = saleAmount.plus(100.toLong())
+                        }
                         TransactionType.REFUND.type -> {
                             refundCount = refundCount.plus(1)
                             refundAmount =

@@ -2710,12 +2710,22 @@ class PrintUtil(context: Context?) {
                     emiTxnAmount,
                     ":  $currencySymbol "
                 )
-                alignLeftRightText(
-                    textInLineFormatBundle,
-                    "AUTH AMOUNT",
-                    authTxnAmount,
-                    ":  $currencySymbol "
-                )
+                if (printerReceiptData.transactionType == TransactionType.TEST_EMI.type) {
+                    alignLeftRightText(
+                        textInLineFormatBundle,
+                        "AUTH AMOUNT",
+                        "1.00",
+                        ":  $currencySymbol "
+                    )
+                } else {
+                    alignLeftRightText(
+                        textInLineFormatBundle,
+                        "AUTH AMOUNT",
+                        authTxnAmount,
+                        ":  $currencySymbol "
+                    )
+                }
+
             }
 
             alignLeftRightText(
@@ -2973,11 +2983,20 @@ class PrintUtil(context: Context?) {
             printer?.feedLine(1)
             if (!TextUtils.isEmpty(printerReceiptData.emiTransactionAmount)) {
                 val baseAmount = "%.2f".format(printerReceiptData.transactionAmt.toFloat() / 100)
-                centerText(
-                    textFormatBundle,
-                    "BASE AMOUNT  :     $currencySymbol  $baseAmount",
-                    true
-                )
+
+                if (printerReceiptData.transactionType == TransactionType.TEST_EMI.type) {
+                    centerText(
+                        textFormatBundle,
+                        "BASE AMOUNT  :     $currencySymbol  1.00",
+                        true
+                    )
+                } else {
+                    centerText(
+                        textFormatBundle,
+                        "BASE AMOUNT  :     $currencySymbol  $baseAmount",
+                        true
+                    )
+                }
             }
             printer?.feedLine(2)
             if (printerReceiptData.isPinverified) {
@@ -3058,7 +3077,8 @@ class PrintUtil(context: Context?) {
                             GlobalScope.launch(Dispatchers.Main) {
                                 if (printerReceiptData.transactionType == TransactionType.EMI_SALE.type ||
                                     printerReceiptData.transactionType == TransactionType.BRAND_EMI.type ||
-                                    printerReceiptData.transactionType == TransactionType.BRAND_EMI_BY_ACCESS_CODE.type
+                                    printerReceiptData.transactionType == TransactionType.BRAND_EMI_BY_ACCESS_CODE.type ||
+                                    printerReceiptData.transactionType == TransactionType.TEST_EMI.type
                                 )
                                     (context as VFTransactionActivity).showMerchantAlertBox(
                                         this@PrintUtil,
