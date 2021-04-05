@@ -277,6 +277,7 @@ suspend fun saveToDB(spliter: List<String>) {
             }
 
         }
+
         spliter[2] == "106" -> {
             val terminalParameterTable = TerminalParameterTable()
             parseData(terminalParameterTable, spliter)
