@@ -321,8 +321,8 @@ suspend fun saveToDB(spliter: List<String>) {
             CardDataTable.performOperation(cardDataTable) {
                 logger("saveToDB", "cdt")
             }
-
         }
+
         /*  spliter[2] == "108" -> {
               val emiBinTable = EmiBinTable()
               parseData(emiBinTable, spliter)
