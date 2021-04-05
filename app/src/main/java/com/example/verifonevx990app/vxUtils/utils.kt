@@ -322,7 +322,7 @@ suspend fun saveToDB(spliter: List<String>) {
                 logger("saveToDB", "cdt")
             }
         }
-
+//region ===== No need to parse
         /*  spliter[2] == "108" -> {
               val emiBinTable = EmiBinTable()
               parseData(emiBinTable, spliter)
@@ -398,7 +398,7 @@ suspend fun saveToDB(spliter: List<String>) {
        }
 
      */
-
+// endregion
         //region=====New Tables added for HDFC=====
         spliter[2] == "201" -> {  // HDFC TPT
             val hdfcTpt = HdfcTpt()
