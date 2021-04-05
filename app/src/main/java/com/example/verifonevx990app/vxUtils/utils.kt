@@ -313,13 +313,7 @@ suspend fun saveToDB(spliter: List<String>) {
             }
 
         }
-        /*  spliter[2] == "108" -> {
-              val emiBinTable = EmiBinTable()
-              parseData(emiBinTable, spliter)
-              EmiBinTable.performOperation(emiBinTable) {
-                  logger("saveToDB", "ebt")
-              }
-          }*/
+
         spliter[2] == "107" -> {
             val cardDataTable = CardDataTable()
             parseData(cardDataTable, spliter)
@@ -328,8 +322,13 @@ suspend fun saveToDB(spliter: List<String>) {
             }
 
         }
-
-        /*
+        /*  spliter[2] == "108" -> {
+              val emiBinTable = EmiBinTable()
+              parseData(emiBinTable, spliter)
+              EmiBinTable.performOperation(emiBinTable) {
+                  logger("saveToDB", "ebt")
+              }
+          }
        spliter[2] == "109" -> {
            val brandDataTable = BrandDataTable()
            parseData(brandDataTable, spliter)

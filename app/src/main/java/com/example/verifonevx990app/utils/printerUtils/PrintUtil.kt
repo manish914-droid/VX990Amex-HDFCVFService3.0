@@ -2728,11 +2728,20 @@ class PrintUtil(context: Context?) {
 
             }
 
-            alignLeftRightText(
-                textInLineFormatBundle,
-                "CARD ISSUER",
-                printerReceiptData.issuerName
-            )
+            if (printerReceiptData.transactionType == TransactionType.TEST_EMI.type) {
+                alignLeftRightText(
+                    textInLineFormatBundle,
+                    "CARD ISSUER",
+                    "TEST ISSUER"
+                )
+            } else {
+                alignLeftRightText(
+                    textInLineFormatBundle,
+                    "CARD ISSUER",
+                    printerReceiptData.issuerName
+                )
+            }
+
 
             if (!TextUtils.isEmpty(printerReceiptData.roi)) {
                 val rateOfInterest = "%.2f".format(printerReceiptData.roi.toFloat() / 100) + " %"
@@ -2879,7 +2888,16 @@ class PrintUtil(context: Context?) {
 
             centerText(textFormatBundle, "CUSTOMER CONSENT FOR EMI", true)
             //region=======================Issuer Header Terms and Condition=================
-            val issuerHeaderTAndC = issuerTAndCData.headerTAndC.split(SplitterTypes.POUND.splitter)
+            val issuerHeaderTAndC: List<String>
+            val testTnc =
+                "#.I have been offered the choice of normal as well as EMI for this purchase and I have chosen EMI.#.I have fully understood and accept the terms of EMI scheme and applicable charges mentioned in this charge-slip.#.EMI conversion subject to Banks discretion and by take minimum * working days.#.GST extra on the interest amount.#.For the first EMI, the interest will be calculated from the loan booking date till the payment due date.#.Convenience fee of Rs --.-- + GST will be applicable on EMI transactions."
+            issuerHeaderTAndC =
+                if (printerReceiptData.transactionType == TransactionType.TEST_EMI.type) {
+                    testTnc.split(SplitterTypes.POUND.splitter)
+                } else {
+                    issuerTAndCData.headerTAndC.split(SplitterTypes.POUND.splitter)
+                }
+
             if (issuerHeaderTAndC.size > 1) {
                 for (i in 1 until issuerHeaderTAndC.size) {
                     if (!TextUtils.isEmpty(issuerHeaderTAndC[i])) {
