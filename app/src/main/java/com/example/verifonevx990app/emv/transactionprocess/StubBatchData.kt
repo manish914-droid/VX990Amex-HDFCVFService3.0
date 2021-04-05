@@ -50,7 +50,7 @@ class StubBatchData(
         batchFileData.transactionType = transactionType
 
         batchFileData.emiTransactionAmount =
-            cardProcessedDataModal.getEmiTransactionAmount().toString()
+            (cardProcessedDataModal.getEmiTransactionAmount() ?: 0L).toString()
         batchFileData.nii = Nii.DEFAULT.nii
         batchFileData.applicationPanSequenceNumber =
             cardProcessedDataModal.getApplicationPanSequenceValue() ?: ""

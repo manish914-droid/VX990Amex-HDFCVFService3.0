@@ -81,9 +81,7 @@ class EMISchemeAndOfferActivity : BaseActivity() {
     }
     //endregion
 
-    override fun onBackPressed() {
-        navigateControlBackToTransaction(isTransactionContinue = false)
-    }
+    override fun onBackPressed() = navigateControlBackToTransaction(isTransactionContinue = false)
 
     //region=========================SetUp RecyclerView Data:-
     private fun setUpRecyclerView() {

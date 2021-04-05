@@ -2854,13 +2854,22 @@ class PrintUtil(context: Context?) {
                 )
             }
 
+            var totalAmountHeadingText = ""
+
+            totalAmountHeadingText = when (printerReceiptData.issuerId) {
+                "52" -> "TOTAL AMOUNT(incl Int)"
+                "55" -> "TOTAL EFFECTIVE PAYOUT"
+                else -> "TOTAL Amt(With Int) "
+            }
+
+
             if (!TextUtils.isEmpty(printerReceiptData.totalInterest)) {
                 val loanAmt = "%.2f".format(printerReceiptData.loanAmt.toFloat() / 100)
                 val totalInterest = "%.2f".format(printerReceiptData.totalInterest.toFloat() / 100)
                 val totalAmt = loanAmt.toDouble().plus(totalInterest.toDouble())
                 alignLeftRightText(
                     textInLineFormatBundle,
-                    "TOTAL Amt(With Int) ",
+                    totalAmountHeadingText,
                     totalAmt.toString(),
                     ":  $currencySymbol "
                 )
@@ -2947,12 +2956,24 @@ class PrintUtil(context: Context?) {
                         )
                     }
                     if (!TextUtils.isEmpty(printerReceiptData.merchantMobileNumber)) {
-                        alignLeftRightText(
-                            textInLineFormatBundle,
-                            "Mobile No.",
-                            printerReceiptData.merchantMobileNumber,
-                            ":"
-                        )
+                        when (brandEmiData.brandReservedValues.substring(1, 2)) {
+                            "1" -> alignLeftRightText(
+                                textInLineFormatBundle,
+                                "Mobile No.",
+                                printerReceiptData.merchantMobileNumber,
+                                ":"
+                            )
+
+                            "2" ->
+                                alignLeftRightText(
+                                    textInLineFormatBundle,
+                                    "Mobile No.",
+                                    printerReceiptData.merchantMobileNumber,
+                                    ":"
+                                )
+                            else -> {
+                            }
+                        }
                     }
                 }
                 printSeperator(textFormatBundle)

@@ -450,30 +450,41 @@ class MainActivity : BaseActivity(), IFragmentRequest,
     }
 
     //Below method is used to update App through HTTP/HTTPs:-
-    private fun startHTTPSAppUpdate() {
-        AppUpdateDownloadManager(object : OnDownloadCompleteListener {
-            override fun onError(msg: String) {
-                GlobalScope.launch(Dispatchers.Main) {
-                    hideProgress()
-                    getInfoDialog(getString(R.string.connection_error), "No update available") {}
-                }
-            }
+    private fun startHTTPSAppUpdate(appHostDownloadURL: String? = null) {
+        showProgress()
+        if (appHostDownloadURL != null) {
+            AppUpdateDownloadManager(
+                "https://122.176.84.29:8055/app/pos.zip",
+                object : OnDownloadCompleteListener {
+                    override fun onError(msg: String) {
+                        GlobalScope.launch(Dispatchers.Main) {
+                            hideProgress()
+                            getInfoDialog(
+                                getString(R.string.connection_error),
+                                "No update available"
+                            ) {}
+                        }
+                    }
 
-            override fun onDownloadComplete(path: String, appName: String) {
-                if (!TextUtils.isEmpty(path)) {
-                    startActivityForResult(Intent().apply {
-                        flags = Intent.FLAG_ACTIVITY_NEW_TASK
-                        setDataAndType(
-                            Uri.fromFile(File(path + appName)),
-                            "application/vnd.android.package-archive"
-                        )
-                    }, APP_UPDATE_REQUEST)
-                } else {
-                    hideProgress()
-                    VFService.showToast(getString(R.string.something_went_wrong))
-                }
-            }
-        }).execute()
+                    override fun onDownloadComplete(path: String, appName: String) {
+                        if (!TextUtils.isEmpty(path)) {
+                            hideProgress()
+                            startActivity(Intent().apply {
+                                flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                                setDataAndType(
+                                    Uri.fromFile(File(path + appName)),
+                                    "application/vnd.android.package-archive"
+                                )
+                            })
+                        } else {
+                            hideProgress()
+                            VFService.showToast(getString(R.string.something_went_wrong))
+                        }
+                    }
+                }).execute()
+        } else {
+            VFService.showToast("Download URL Not Found!!!")
+        }
     }
 
     //Below method is used to perform full init process for terminal:-
@@ -1849,8 +1860,12 @@ class MainActivity : BaseActivity(), IFragmentRequest,
                                                             dataList[7],
                                                             dataList[8]
                                                         )
-                                                    /*else
-                                                startHTTPSAppUpdate()*/ //------------>HTTPS App Update not in use currently
+                                                    else if (terminalParameterTable?.reservedValues?.length == 20 &&
+                                                        terminalParameterTable.reservedValues.endsWith(
+                                                            "3"
+                                                        )
+                                                    )
+                                                        startHTTPSAppUpdate(dataList[2]) //------------>HTTPS App Update not in use currently
                                                 }
                                                 AppUpdate.OPTIONAL_APP_UPDATE.updateCode -> {
                                                     alertBoxWithAction(
@@ -1874,8 +1889,12 @@ class MainActivity : BaseActivity(), IFragmentRequest,
                                                                     dataList[7],
                                                                     dataList[8]
                                                                 )
-                                                            /*else
-                                                    startHTTPSAppUpdate()*/ //------------>HTTPS App Update not in use currently
+                                                            else if (terminalParameterTable?.reservedValues?.length == 20 &&
+                                                                terminalParameterTable.reservedValues.endsWith(
+                                                                    "3"
+                                                                )
+                                                            )
+                                                                startHTTPSAppUpdate(dataList[2]) //------------>HTTPS App Update not in use currently
                                                         },
                                                         {})
                                                 }
@@ -1987,8 +2006,12 @@ class MainActivity : BaseActivity(), IFragmentRequest,
                                                                 dataList[7],
                                                                 dataList[8]
                                                             )
-                                                        /*else
-                                                                startHTTPSAppUpdate()*/ //------------>HTTPS App Update not in use currently
+                                                        else if (terminalParameterTable?.reservedValues?.length == 20 &&
+                                                            terminalParameterTable.reservedValues.endsWith(
+                                                                "3"
+                                                            )
+                                                        )
+                                                            startHTTPSAppUpdate(dataList[2]) //------------>HTTPS App Update not in use currently
                                                     }
                                                     AppUpdate.OPTIONAL_APP_UPDATE.updateCode -> {
                                                         alertBoxWithAction(
@@ -2012,8 +2035,12 @@ class MainActivity : BaseActivity(), IFragmentRequest,
                                                                         dataList[7],
                                                                         dataList[8]
                                                                     )
-                                                                /*else
-                                                                    startHTTPSAppUpdate()*/ //------------>HTTPS App Update not in use currently
+                                                                else if (terminalParameterTable?.reservedValues?.length == 20 &&
+                                                                    terminalParameterTable.reservedValues.endsWith(
+                                                                        "3"
+                                                                    )
+                                                                )
+                                                                    startHTTPSAppUpdate(dataList[2]) //------------>HTTPS App Update not in use currently
                                                             },
                                                             {})
                                                     }

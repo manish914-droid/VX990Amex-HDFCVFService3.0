@@ -2,6 +2,7 @@ package com.example.verifonevx990app.appupdate
 
 import android.os.AsyncTask
 import android.os.Environment
+import android.util.Log
 import java.io.File
 import java.io.FileOutputStream
 import java.io.InputStream
@@ -9,10 +10,12 @@ import java.io.OutputStream
 import java.net.HttpURLConnection
 import java.net.URL
 
-class AppUpdateDownloadManager(private var onDownloadCompleteListener: OnDownloadCompleteListener) :
+class AppUpdateDownloadManager(
+    private var appHostDownloadURL: String,
+    private var onDownloadCompleteListener: OnDownloadCompleteListener
+) :
     AsyncTask<String, Int, String>() {
 
-    private val url = "https://testcallbh.bonushub.co.in/app/verfione(bonushub).zip"
     private val appName = "BonusHub.apk"
 
     override fun doInBackground(vararg params: String?): String? {
@@ -21,7 +24,8 @@ class AppUpdateDownloadManager(private var onDownloadCompleteListener: OnDownloa
         val PATH = Environment.getExternalStorageDirectory().path + "/Download/"
         val connection: HttpURLConnection
         try {
-            val url = URL(url)
+            val url = URL(appHostDownloadURL)
+            Log.d("HTTPS Download URL:- ", appHostDownloadURL)
             connection = url.openConnection() as HttpURLConnection
 
             connection.readTimeout = 100000

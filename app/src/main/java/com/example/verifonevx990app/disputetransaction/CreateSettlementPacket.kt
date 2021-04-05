@@ -84,6 +84,14 @@ class CreateSettlementPacket(
                             saleCount = saleCount.plus(1)
                             saleAmount = saleAmount.plus(batchList[i].emiTransactionAmount.toLong())
                         }
+                        TransactionType.BRAND_EMI.type -> {
+                            saleCount = saleCount.plus(1)
+                            saleAmount = saleAmount.plus(batchList[i].emiTransactionAmount.toLong())
+                        }
+                        TransactionType.BRAND_EMI_BY_ACCESS_CODE.type -> {
+                            saleCount = saleCount.plus(1)
+                            saleAmount = saleAmount.plus(batchList[i].transactionalAmmount.toLong())
+                        }
                         TransactionType.SALE_WITH_CASH.type -> {
                             saleCount = saleCount.plus(1)
                             saleAmount = saleAmount.plus(batchList[i].transactionalAmmount.toLong())
