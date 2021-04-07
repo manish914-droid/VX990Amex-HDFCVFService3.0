@@ -3,7 +3,6 @@ package com.example.verifonevx990app.disputetransaction
 import android.content.Intent
 import android.os.Bundle
 import android.text.TextUtils
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -19,12 +18,10 @@ import com.example.verifonevx990app.emv.transactionprocess.SyncReversalToHost
 import com.example.verifonevx990app.main.MainActivity
 import com.example.verifonevx990app.offlinemanualsale.SyncOfflineSaleSettlementToHost
 import com.example.verifonevx990app.realmtables.BatchFileDataTable
-import com.example.verifonevx990app.realmtables.BrandEMIAccessDataModalTable
 import com.example.verifonevx990app.utils.printerUtils.PrintUtil
 import com.example.verifonevx990app.vxUtils.*
 import com.example.verifonevx990app.vxUtils.AppPreference.GENERIC_REVERSAL_KEY
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
-import com.google.gson.Gson
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
@@ -53,12 +50,6 @@ class SettlementFragment : Fragment(R.layout.activity_settlement_view) {
         sub_header_text?.text = title
         lv_heading_view = view.findViewById(R.id.lv_heading_view)
         empty_view_placeholder = view.findViewById(R.id.empty_view_placeholder)
-
-        GlobalScope.launch(Dispatchers.IO) {
-            val brandEMIByAccessCodeData =
-                BrandEMIAccessDataModalTable.getBrandEMIByAccessCodeData()
-            Log.d("BrandData:- ", Gson().toJson(brandEMIByAccessCodeData))
-        }
 
         batchList = BatchFileDataTable.selectBatchData()
         getAndInflateSettlementData()

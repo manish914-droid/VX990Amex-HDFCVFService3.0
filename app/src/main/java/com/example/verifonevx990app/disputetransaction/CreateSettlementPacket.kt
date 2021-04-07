@@ -50,7 +50,7 @@ class CreateSettlementPacket(
             )
 
             val version = addPad(getAppVersionNameAndRevisionID(), "0", 15, false)
-
+            val pcNumber = addPad(AppPreference.getString(AppPreference.PC_NUMBER_KEY), "0", 9)
             //adding field 62
             addFieldByHex(
                 62, ConnectionType.GPRS.code + addPad(
@@ -62,7 +62,7 @@ class CreateSettlementPacket(
                             10,
                             false
                         ) +
-                        version + addPad("0", "0", 9)
+                        version + pcNumber + addPad("0", "0", 9)
             )
             //adding field 63
             var saleCount = 0

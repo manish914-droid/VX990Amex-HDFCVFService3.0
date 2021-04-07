@@ -176,6 +176,7 @@ suspend fun readInitServer(data: ArrayList<ByteArray>, callback: (Boolean, Strin
     }
 }
 
+// For EMI Purpose
 private val pc2Tables = arrayOf(108, 110, 111, 112, 113, 115, 116)
 
 //For Terminal Purpose

@@ -13,7 +13,6 @@ import com.example.verifonevx990app.databinding.CrossSellViewBinding
 import com.example.verifonevx990app.main.MainActivity
 import com.example.verifonevx990app.vxUtils.BHButton
 
-
 class HDFCCrossSellFragment : Fragment(R.layout.cross_sell_view) {
     private val title: String by lazy { arguments?.getString(MainActivity.INPUT_SUB_HEADING) ?: "" }
     private val reservedValue: String by lazy {
@@ -132,7 +131,6 @@ class HDFCCrossSellFragment : Fragment(R.layout.cross_sell_view) {
 
 
 //ENUMS
-
 //Below enum class is used to detect Cross Sell List Options:-
 enum class CrossSellOptions(val heading: String, val code: Int) {
     CREDIT_LIMIT_INCREASE("Credit Limit Increase", 13),

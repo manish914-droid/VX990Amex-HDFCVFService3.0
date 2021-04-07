@@ -214,8 +214,6 @@ class StubBatchData(
         batchFileData.isPinverified =
             cardProcessedDataModal.getIsOnline() == 1 || cardProcessedDataModal.getIsOnline() == 2
 
-
-
         batchFileData.referenceNumber =
             hexString2String(cardProcessedDataModal.getRetrievalReferenceNumber() ?: "")
         batchFileData.tc = cardProcessedDataModal.getTC() ?: ""

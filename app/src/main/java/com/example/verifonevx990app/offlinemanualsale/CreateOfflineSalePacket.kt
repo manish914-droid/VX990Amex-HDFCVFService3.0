@@ -68,7 +68,7 @@ class CreateOfflineSalePacket(private var offlineBatchTableData: BatchFileDataTa
                 false
             ) +
                     addPad(VerifoneApp.appContext.getString(R.string.app_name), " ", 10, false) +
-                    version + addPad("0", "0", 9) + pcNumber
+                    version + pcNumber + addPad("0", "0", 9)
             val customerID = HexStringConverter.addPreFixer(
                 issuerParameterTable?.customerIdentifierFiledType,
                 2
