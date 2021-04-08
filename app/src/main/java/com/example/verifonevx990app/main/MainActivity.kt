@@ -6,20 +6,17 @@ import android.app.Dialog
 import android.content.Intent
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
-import android.net.Uri
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.os.RemoteException
 import android.provider.Settings
 import android.text.InputFilter
 import android.text.InputType
 import android.text.TextUtils
 import android.util.Log
 import android.view.*
-import android.widget.Button
-import android.widget.ImageView
-import android.widget.LinearLayout
-import android.widget.TextView
+import android.widget.*
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
 import androidx.core.view.GravityCompat
@@ -30,6 +27,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.verifonevx990app.BuildConfig
 import com.example.verifonevx990app.R
 import com.example.verifonevx990app.appupdate.*
+import com.example.verifonevx990app.appupdate.SystemService.systemManager
 import com.example.verifonevx990app.bankEmiEnquiry.IssuerListFragment
 import com.example.verifonevx990app.bankemi.GenericEMIIssuerTAndC
 import com.example.verifonevx990app.brandemi.BrandEMIMasterCategoryFragment
@@ -60,6 +58,7 @@ import com.example.verifonevx990app.vxUtils.*
 import com.example.verifonevx990app.vxUtils.ROCProviderV2.refreshToolbarLogos
 import com.example.verifonevx990app.vxUtils.ROCProviderV2.saveBatchInPreference
 import com.google.android.material.bottomnavigation.BottomNavigationView
+import com.vfi.smartpos.system_service.aidl.IAppInstallObserver
 import kotlinx.coroutines.*
 import java.io.File
 
@@ -119,6 +118,7 @@ class MainActivity : BaseActivity(), IFragmentRequest,
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding?.root)
+        VFService.showToast("Welcome To Updated App!!!!")
         initUI()
         decideHome()
 
@@ -451,10 +451,11 @@ class MainActivity : BaseActivity(), IFragmentRequest,
 
     //Below method is used to update App through HTTP/HTTPs:-
     private fun startHTTPSAppUpdate(appHostDownloadURL: String? = null) {
+        runBlocking(Dispatchers.IO) { SystemService.disconnectSystemService(this@MainActivity) }
         showProgress()
         if (appHostDownloadURL != null) {
             AppUpdateDownloadManager(
-                "https://122.176.84.29:8055/app/pos.zip",
+                "https://testapp.bonushub.co.in:8055/app/pos.zip",
                 object : OnDownloadCompleteListener {
                     override fun onError(msg: String) {
                         GlobalScope.launch(Dispatchers.Main) {
@@ -469,13 +470,17 @@ class MainActivity : BaseActivity(), IFragmentRequest,
                     override fun onDownloadComplete(path: String, appName: String) {
                         if (!TextUtils.isEmpty(path)) {
                             hideProgress()
-                            startActivity(Intent().apply {
-                                flags = Intent.FLAG_ACTIVITY_NEW_TASK
-                                setDataAndType(
-                                    Uri.fromFile(File(path + appName)),
-                                    "application/vnd.android.package-archive"
+                            Log.d("DownloadAppFilePath:- ", path)
+                            runBlocking(Dispatchers.IO) {
+                                SystemService.connectSystemService(this@MainActivity)
+                            }
+                            autoInstallApk(path) { status, packageName, code ->
+                                VFService.showToast(
+                                    "App Install Status:- $status/n " +
+                                            "App PackageName:- $packageName/n " +
+                                            "App Install Code:- $code"
                                 )
-                            })
+                            }
                         } else {
                             hideProgress()
                             VFService.showToast(getString(R.string.something_went_wrong))
@@ -486,6 +491,35 @@ class MainActivity : BaseActivity(), IFragmentRequest,
             VFService.showToast("Download URL Not Found!!!")
         }
     }
+
+    //region=========================Auto Install Apk Execution Code:-
+    fun autoInstallApk(filePath: String?, apkInstallCB: (Boolean, String, Int) -> Unit) {
+        if (systemManager != null && !TextUtils.isEmpty(filePath)) {
+            try {
+                systemManager?.installApp(
+                    filePath, object : IAppInstallObserver.Stub() {
+                        @Throws(RemoteException::class)
+                        override fun onInstallFinished(packageName: String, returnCode: Int) {
+                            Log.d("ReturnCode:- ", returnCode.toString())
+                            apkInstallCB(true, packageName, returnCode)
+                        }
+                    },
+                    this.packageManager?.getPackageInfo(this.packageName, 0).toString()
+                )
+            } catch (e: RemoteException) {
+                e.printStackTrace()
+                apkInstallCB(true, "", 500)
+            } catch (ex: java.lang.Exception) {
+                Log.d(TAG, ex.printStackTrace().toString())
+                apkInstallCB(true, "", 500)
+            }
+        } else {
+            runOnUiThread {
+                VFService.showToast("Something went wrong!!!")
+            }
+        }
+    }
+//endregion
 
     //Below method is used to perform full init process for terminal:-
     private fun startFullInitProcess(tid: String? = TerminalParameterTable.selectFromSchemeTable()?.terminalId) {

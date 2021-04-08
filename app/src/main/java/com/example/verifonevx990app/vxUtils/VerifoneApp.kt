@@ -24,6 +24,7 @@ import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
 import androidx.annotation.RequiresApi
 import androidx.multidex.MultiDex
+import com.example.verifonevx990app.appupdate.SystemService
 import com.example.verifonevx990app.main.MainActivity
 import com.example.verifonevx990app.realmtables.TerminalParameterTable
 import io.realm.Realm
@@ -100,6 +101,7 @@ class VerifoneApp : Application() {
         vxAppContext = this
         MultiDex.install(this)
         VFService.connectToVFService(appContext)
+        SystemService.connectSystemService(appContext)
         val builder: StrictMode.VmPolicy.Builder = StrictMode.VmPolicy.Builder()
         StrictMode.setVmPolicy(builder.build())
 

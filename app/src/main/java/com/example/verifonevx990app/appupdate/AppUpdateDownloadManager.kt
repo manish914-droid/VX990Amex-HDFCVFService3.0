@@ -1,7 +1,6 @@
 package com.example.verifonevx990app.appupdate
 
 import android.os.AsyncTask
-import android.os.Environment
 import android.util.Log
 import java.io.File
 import java.io.FileOutputStream
@@ -18,10 +17,10 @@ class AppUpdateDownloadManager(
 
     private val appName = "BonusHub.apk"
 
-    override fun doInBackground(vararg params: String?): String? {
+    override fun doInBackground(vararg params: String?): String {
         var input: InputStream? = null
         var output: OutputStream? = null
-        val PATH = Environment.getExternalStorageDirectory().path + "/Download/"
+        val PATH = "/sdcard/"
         val connection: HttpURLConnection
         try {
             val url = URL(appHostDownloadURL)
@@ -34,10 +33,8 @@ class AppUpdateDownloadManager(
             connection.connect()
 
             val fileLength = connection.contentLength
-            val file = File(PATH)
 
-            file.mkdirs()
-            val outputFile = File(file, appName)
+            val outputFile = File(PATH, appName)
             if (outputFile.exists()) {
                 outputFile.delete()
             }
@@ -56,7 +53,7 @@ class AppUpdateDownloadManager(
                 publishProgress((total * 100 / fileLength).toInt())
                 output.write(data, 0, length)
             }
-            return PATH
+            return outputFile.toString()
         } catch (e: Exception) {
             e.printStackTrace()
             onDownloadCompleteListener.onError(e.message ?: "")

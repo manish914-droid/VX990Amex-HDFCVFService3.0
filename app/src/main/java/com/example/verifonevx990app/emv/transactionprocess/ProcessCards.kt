@@ -62,7 +62,6 @@ class ProcessCard(
                         cardProcessedDataModal: CardProcessedDataModal
                     ) {
                         if (ispin) {
-
                             val param = Bundle()
                             val globleparam = Bundle()
                             val panBlock: String? = cardProcessedDataModal.getPanNumberData()
@@ -566,6 +565,17 @@ class ProcessCard(
 
                                                         }
 
+                                                    } else {
+                                                        DoEmv(
+                                                            activity,
+                                                            handler,
+                                                            cardProcessedDataModal,
+                                                            ConstIPBOC.startEMV.intent.VALUE_cardType_smart_card
+                                                        ) { cardProcessedDataModal ->
+                                                            transactionCallback(
+                                                                cardProcessedDataModal
+                                                            )
+                                                        }
                                                     }
                                                 }
                                             }
