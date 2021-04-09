@@ -402,6 +402,8 @@
     <string name="cashbackPercentage">CashBack %</string>
     <string name="cashback_amount">CashBack Amount</string>
     <string name="netPayAmount">Net Pay Amount</string>
+    <string name="auto_settlement">Auto Settlement</string>
+    <string name="do_you_want_to_auto_settle_batch">Do You Want To Auto Settle Batch?</string>
 
 
 </resources>

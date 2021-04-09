@@ -8,6 +8,7 @@ import com.example.verifonevx990app.emv.transactionprocess.CardProcessedDataModa
  * Created by Simon on 2018/8/31.
  * Utility for BCD ASCII convert and others
  */
+
 public class Utility {
 
 

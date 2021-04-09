@@ -2176,6 +2176,26 @@ object Field48ResponseTimestamp {
     }
 }
 
+// region ============================Get System Time in 24Hour Format:-
+fun getSystemTimeIn24Hour(): String {
+    val calendar = Calendar.getInstance()
+    val dateFormatter = SimpleDateFormat("yyyMMddHH:mm:ss", Locale.getDefault())
+    return dateFormatter.format(calendar.time).replaceTimeColon()
+}
+//endregion
+
+//region=================Format Date by replacing colon:-
+fun String.replaceTimeColon() = this.replace(":", "")
+//endregion
+
+//region=================Get Terminal Date according to Passed Index Value:-
+fun String.terminalDate() = this.substring(0, 8)
+//endregion
+
+//region=================Get Terminal Date according to Passed Index Value:-
+fun String.terminalTime() = this.substring(8, this.length)
+//endregion
+
 /*
 App Update Through FTP Steps:-
 1.Make Signing apk Build by using Verifone Signing USB and Signing Tool in Windows System.

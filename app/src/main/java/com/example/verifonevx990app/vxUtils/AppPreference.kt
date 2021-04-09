@@ -35,6 +35,8 @@ object AppPreference {
 
     const val LAST_BATCH = "last_batch"
     const val HEADER_FOOTER = "header_footer"
+    const val LAST_SAVED_AUTO_SETTLE_DATE = "last_saved_auto_settle_date"
+    const val IsAutoSettleDone = "is_auto_settle_done"
 
     const val F48IdentifierAndSuccesssTxn = "f48id_txnDate"
 

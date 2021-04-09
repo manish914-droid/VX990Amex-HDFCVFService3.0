@@ -4,6 +4,7 @@ import android.content.Context
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.text.TextUtils
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -24,9 +25,14 @@ import com.example.verifonevx990app.R
 import com.example.verifonevx990app.appupdate.SendAppUpdateConfirmationPacket
 import com.example.verifonevx990app.appupdate.SyncAppUpdateConfirmation
 import com.example.verifonevx990app.databinding.FragmentDashboardBinding
+import com.example.verifonevx990app.disputetransaction.CreateSettlementPacket
 import com.example.verifonevx990app.main.IFragmentRequest
 import com.example.verifonevx990app.main.MainActivity
-import com.example.verifonevx990app.realmtables.*
+import com.example.verifonevx990app.main.SETTLEMENT
+import com.example.verifonevx990app.realmtables.BHDashboardItem
+import com.example.verifonevx990app.realmtables.BatchFileDataTable
+import com.example.verifonevx990app.realmtables.EDashboardItem
+import com.example.verifonevx990app.realmtables.TerminalParameterTable
 import com.example.verifonevx990app.vxUtils.*
 import kotlinx.coroutines.*
 import java.lang.Runnable
@@ -98,6 +104,7 @@ class DashboardFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        isDashboardOpen = true
 
         if (isExpanded) {
             binding?.pagerViewLL?.visibility = View.GONE
@@ -122,23 +129,88 @@ class DashboardFragment : Fragment() {
             setUpDashBoardItems()
         }
 
-        runBlocking(Dispatchers.IO) {
-            val hdfcTptData = HdfcTpt.selectAllHDFCTPTData()
-            val hdfcCdt = HdfcCdt.selectAllHDFCCDTData()
-            val issuerTC = IssuerTAndCTable.getAllIssuerTAndCData()
-            tptData = TerminalParameterTable.selectFromSchemeTable()
-            batchData = BatchFileDataTable.selectBatchData()
-            Log.d("HDFCTPT Data:- ", hdfcTptData.toString())
-            Log.d("HDFCCDT Data:- ", hdfcCdt.toString())
-            Log.d("IssuerTAndC Data:- ", issuerTC.toString())
-        }
         (activity as MainActivity).showHelpDeskNumber()
         Log.d("Current Time:- ", getTimeInMillis().toString())
 
-        //region===================Check and Perform AutoSettle Operation on Dashboard Fragment:-
+        //region======================Change isAutoSettleDone Boolean Value to False if Date is greater then
+        //last saved Auto Settle Date:-
+        if (AppPreference.getString(AppPreference.LAST_SAVED_AUTO_SETTLE_DATE).toInt() > 0) {
+            if (getSystemTimeIn24Hour().terminalDate().toInt() >
+                AppPreference.getString(AppPreference.LAST_SAVED_AUTO_SETTLE_DATE).toInt()
+            ) {
+                AppPreference.saveBoolean(AppPreference.IsAutoSettleDone, false)
+            }
+        }
+        //endregion
 
+        //region=======================Check For AutoSettle at regular interval if App is on Dashboard:-
+        if (isDashboardOpen && !AppPreference.getBoolean(AppPreference.IsAutoSettleDone))
+            checkForAutoSettle()
         //endregion
     }
+
+    //region============================Auto Settle Check on Dashboard at Regular Intervals:-
+    private fun checkForAutoSettle() {
+        runnable = object : Runnable {
+            override fun run() {
+                try {
+                    Log.d("AutoSettle:- ", "Checking....")
+                    autoSettleBatch()
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                } finally {
+                    //also call the same runnable to call it at regular interval
+                    handler.postDelayed(this, 20000)
+                }
+            }
+        }
+        handler.post(runnable as Runnable)
+    }
+    //endregion
+
+    //region=======================Check for User IDLE on Dashboard and do auto settle if conditions match:-
+    private fun autoSettleBatch() {
+        val tptData = runBlocking(Dispatchers.IO) { TerminalParameterTable.selectFromSchemeTable() }
+        val batchData = runBlocking(Dispatchers.IO) { BatchFileDataTable.selectBatchData() }
+        Log.d("HostForceSettle:- ", tptData?.forceSettle ?: "")
+        Log.d("HostForceSettleTime:- ", tptData?.forceSettleTime ?: "")
+        Log.d(
+            "System Date Time:- ",
+            "${getSystemTimeIn24Hour().terminalDate()} ${getSystemTimeIn24Hour().terminalTime()}"
+        )
+        if (isDashboardOpen && !AppPreference.getBoolean(AppPreference.IsAutoSettleDone)) {
+            Log.d("Dashboard Open:- ", "Yes")
+            if (!TextUtils.isEmpty(tptData?.forceSettle)
+                && !TextUtils.isEmpty(tptData?.forceSettleTime)
+                && tptData?.forceSettle == "1"
+            ) {
+                if ((tptData.forceSettleTime == getSystemTimeIn24Hour().terminalTime()
+                            || getSystemTimeIn24Hour().terminalTime() > tptData.forceSettleTime
+                            ) && batchData.size > 0
+                ) {
+                    logger("Auto Settle:- ", "Auto Settle Available")
+                    val data = runBlocking(Dispatchers.IO) {
+                        CreateSettlementPacket(
+                            ProcessingCode.SETTLEMENT.code, batchData
+                        ).createSettlementISOPacket()
+                    }
+                    GlobalScope.launch(Dispatchers.IO) {
+                        val settlementByteArray = data.generateIsoByteRequest()
+                        (activity as MainActivity).settleBatch(
+                            settlementByteArray,
+                            SETTLEMENT.DASHBOARD.type
+                        )
+                    }
+                } else
+                    logger("Auto Settle:- ", "Auto Settle Mismatch Time")
+            } else
+                logger("Auto Settle:- ", "Auto Settle Not Available")
+        } else {
+            Log.d("Dashboard Close:- ", "Yes")
+        }
+    }
+    //endregion
+
 
     private fun scheduleTimer() {
         timer = Timer()

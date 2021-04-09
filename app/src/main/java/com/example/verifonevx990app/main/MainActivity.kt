@@ -118,7 +118,6 @@ class MainActivity : BaseActivity(), IFragmentRequest,
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding?.root)
-        VFService.showToast("Welcome To Updated App!!!!")
         initUI()
         decideHome()
 
@@ -1758,6 +1757,7 @@ class MainActivity : BaseActivity(), IFragmentRequest,
     //Settle Batch and Do the Init:-
     suspend fun settleBatch(
         settlementByteArray: ByteArray?,
+        settlementFrom: String? = null,
         settlementCB: ((Boolean) -> Unit)? = null
     ) {
         runOnUiThread {
@@ -1834,6 +1834,19 @@ class MainActivity : BaseActivity(), IFragmentRequest,
                             PrefConstant.SETTLEMENT_ROC_INCREMENT.keyName.toString(),
                             settlement_roc
                         )
+
+                        //region Setting AutoSettle Status and Last Settlement DateTime:-
+                        when (settlementFrom) {
+                            SETTLEMENT.DASHBOARD.type -> {
+                                AppPreference.saveBoolean(AppPreference.IsAutoSettleDone, true)
+                                AppPreference.saveString(
+                                    AppPreference.LAST_SAVED_AUTO_SETTLE_DATE,
+                                    getSystemTimeIn24Hour().terminalDate()
+                                )
+                            }
+                            else -> AppPreference.saveBoolean(AppPreference.IsAutoSettleDone, false)
+                        }
+                        //endregion
 
                         PrintUtil(this).printSettlementReport(this, batchList, true) {
                             if (it) {
@@ -2427,6 +2440,13 @@ enum class CardAid(val aid: String) {
     Jcb("A000000065"),
     UnionPay("A000000333"),
     AMEX("A000000025")
+}
+//endregion
+
+//region====================Settlement From Enum:-
+enum class SETTLEMENT(val type: String) {
+    DASHBOARD("45"),
+    Settlement("55")
 }
 //endregion
 
