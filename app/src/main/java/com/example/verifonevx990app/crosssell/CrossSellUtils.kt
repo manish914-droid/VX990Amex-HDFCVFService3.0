@@ -60,6 +60,7 @@ class CreateCrossSellPackets(var field57Data: String) : ICrossSellPacketExchange
         createCrossSellPacket()
     }
 
+
     override fun createCrossSellPacket(): IsoDataWriter = IsoDataWriter().apply {
         val terminalData = TerminalParameterTable.selectFromSchemeTable()
         if (terminalData != null) {

@@ -168,6 +168,7 @@ enum class ProcessingCode(val code: String) {
     ON_PAYMENT_PROMO("980600"),
     PROMO_REPORT("980700"),
 
+
 }
 
 enum class Nii(val nii: String) {

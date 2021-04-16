@@ -7,9 +7,7 @@ import com.example.verifonevx990app.R
 import com.example.verifonevx990app.main.MainActivity
 import com.example.verifonevx990app.main.PrefConstant
 import com.example.verifonevx990app.realmtables.TerminalParameterTable
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
 import java.util.*
 
 interface IKeyExchangeInit {
@@ -91,7 +89,7 @@ class KeyExchanger(
     }
 
     private var tmk = ""
-    private var tmkKcv:ByteArray = byteArrayOf()
+    private var tmkKcv: ByteArray = byteArrayOf()
     private lateinit var rsa: Map<String, Any>
 
     private fun backToCalled(
@@ -445,20 +443,20 @@ class KeyExchanger(
 
     override suspend fun createKeyExchangeIso(): IWriter = IsoDataWriter().apply {
         mti = Mti.MTI_LOGON.mti
-            // adding processing code and field 59 for public and private key
-            addField(
-                3, if (tmk.isEmpty()) {
-                    //resume after
-                    //  ROCProviderV2.resetRoc(AppPreference.getBankCode())
-                    rsa = RSAProvider.generateKeyPair()
-                    val publicKey = RSAProvider.getPublicKeyBytes(rsa)
-                    val f59 = insertBitsInPublicKey(
-                        publicKey.substring(44).hexStr2ByteArr().byteArr2Str()
-                    )
-                    addFieldByHex(59, f59)
-                    ProcessingCode.KEY_EXCHANGE.code
-                } else ProcessingCode.KEY_EXCHANGE_RESPONSE.code
-            )
+        // adding processing code and field 59 for public and private key
+        addField(
+            3, if (tmk.isEmpty()) {
+                //resume after
+                //  ROCProviderV2.resetRoc(AppPreference.getBankCode())
+                rsa = RSAProvider.generateKeyPair()
+                val publicKey = RSAProvider.getPublicKeyBytes(rsa)
+                val f59 = insertBitsInPublicKey(
+                    publicKey.substring(44).hexStr2ByteArr().byteArr2Str()
+                )
+                addFieldByHex(59, f59)
+                ProcessingCode.KEY_EXCHANGE.code
+            } else ProcessingCode.KEY_EXCHANGE_RESPONSE.code
+        )
 
         //adding stan (padding of stan is internally handled by iso)
         addField(11, ROCProviderV2.getRoc(AppPreference.AMEX_BANK_CODE).toString())
@@ -470,7 +468,7 @@ class KeyExchanger(
         addFieldByHex(41, tid)
 
         //adding field 48
-       addFieldByHex(48, Field48ResponseTimestamp.getF48Data())
+        addFieldByHex(48, Field48ResponseTimestamp.getF48Data())
 
         //region=========adding field 61=============
         //adding Field 61
@@ -492,12 +490,12 @@ class KeyExchanger(
         //endregion
 
         //region=====adding field 63============
-      //  val bankCode: String = "01"//
+        //  val bankCode: String = "01"//
 
-        val bankCode =  AppPreference.getBankCode()
+        val bankCode = AppPreference.getBankCode()
 
         //Serial Number from VF Service AIDL:-
-        val deviceSerial = addPad(AppPreference.getString("serialNumber") , " " , 15 , false)
+        val deviceSerial = addPad(AppPreference.getString("serialNumber"), " ", 15, false)
         val f63 = "$deviceSerial$bankCode"
         addFieldByHex(63, f63)
         //endregion
@@ -544,13 +542,51 @@ class KeyExchanger(
     }
 
     private fun startInit() {
-        GlobalScope.launch {
+        GlobalScope.launch(Dispatchers.IO) {
+
             HitServer.hitInitServer({ result, success ->
                 if (success) {
-                    GlobalScope.launch {
-                        //setAutoSettlement()  // Setting auto settlement.
-                        // downloadPromo()  // Setting
+                    //setAutoSettlement()  // Setting auto settlement.
+                    //  downloadPromo()  // Setting
+                    // region ========= checking and getting the merchant promo on terminal====
+                    runBlocking(Dispatchers.IO) {
+                        val tpt = TerminalParameterTable.selectFromSchemeTable()
+                        if (tpt != null) {
+                            getPromotionData(
+                                "000000000000",
+                                ProcessingCode.INITIALIZE_PROMOTION.code, tpt
+                            ) { isSuccess, responseMsg, responsef57, fullResponse ->
+                                if (isSuccess) {
+                                    val spliter = responsef57.split("|")
+                                    if (spliter[1] == "1") {
+                                        val terminalParameterTable =
+                                            TerminalParameterTable.selectFromSchemeTable()
+                                        terminalParameterTable?.isPromoAvailable = true
+                                        // CheckPromo....
+                                        if (terminalParameterTable?.reservedValues?.get(4)
+                                                .toString()
+                                                .toInt() == 1 && terminalParameterTable?.isPromoAvailable == true
+                                        ) {
+                                            terminalParameterTable.hasPromo = "1"
+                                            TerminalParameterTable.performOperation(
+                                                terminalParameterTable
+                                            ) {
+                                                Log.i("TPT", "UPDATED with promo availability")
+                                                TerminalParameterTable.updateMerchantPromoData(
+                                                    Triple(
+                                                        spliter[0],
+                                                        spliter[1] == "1",
+                                                        spliter[2] == "1"
+                                                    )
+                                                )
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
                     }
+                    // endregion================
                     (context as MainActivity).hideProgress()
                     GlobalScope.launch(Dispatchers.Main) {
                         (context as MainActivity).alertBoxWithAction(null,
@@ -585,62 +621,66 @@ class KeyExchanger(
         }
     }
 
-    override suspend fun createInitIso(nextCounter: String, isFirstCall: Boolean): IWriter = IsoDataWriter().apply {
-        mti = Mti.MTI_LOGON.mti
-        // adding processing code and field 59 for public and private key
-        addField(
-            3, if (isFirstCall) {
-                addFieldByHex(60, "${addPad(0, "0", 8)}BP${addPad(0, "0", 4)}")
-                ProcessingCode.INIT.code
-            } else {
-                addFieldByHex(60, nextCounter)
-                ProcessingCode.INIT_MORE.code
-            }
-        )
-        //adding stan (padding of stan is internally handled by iso)
-        addField(11, ROCProviderV2.getRoc(AppPreference.getBankCode()).toString())
-        //adding nii
-        addField(24, Nii.DEFAULT.nii)
+    override suspend fun createInitIso(nextCounter: String, isFirstCall: Boolean): IWriter =
+        IsoDataWriter().apply {
+            mti = Mti.MTI_LOGON.mti
+            // adding processing code and field 59 for public and private key
+            addField(
+                3, if (isFirstCall) {
+                    addFieldByHex(60, "${addPad(0, "0", 8)}BP${addPad(0, "0", 4)}")
+                    ProcessingCode.INIT.code
+                } else {
+                    addFieldByHex(60, nextCounter)
+                    ProcessingCode.INIT_MORE.code
+                }
+            )
+            //adding stan (padding of stan is internally handled by iso)
+            addField(11, ROCProviderV2.getRoc(AppPreference.getBankCode()).toString())
+            //adding nii
+            addField(24, Nii.DEFAULT.nii)
 
-        //adding tid
-        addFieldByHex(41, tid)
+            //adding tid
+            addFieldByHex(41, tid)
 
-        //adding field 48
-       addFieldByHex(48, Field48ResponseTimestamp.getF48Data())
+            //adding field 48
+            addFieldByHex(48, Field48ResponseTimestamp.getF48Data())
 
-        //region=========adding field 61=============
-        val f61 = "3VX675 BonusHub  01.01.32.200626000000000000000000"//
-        getF61()
-        addFieldByHex(61, f61)
-        //endregion
+            //region=========adding field 61=============
+            val f61 = "3VX675 BonusHub  01.01.32.200626000000000000000000"//
+            getF61()
+            addFieldByHex(61, f61)
+            //endregion
 
-        //region=====adding field 63============
-        //  val bankCode: String = "01"
+            //region=====adding field 63============
+            //  val bankCode: String = "01"
 
-        val bankCode = AppPreference.getBankCode()
+            val bankCode = AppPreference.getBankCode()
 
-        //Serial Number from VF Service AIDL:-
-        val deviceSerial = addPad(AppPreference.getString("serialNumber"), " ", 15, false)
-        val f63 = "$deviceSerial$bankCode"
-        addFieldByHex(63, f63)
-        //endregion
+            //Serial Number from VF Service AIDL:-
+            val deviceSerial = addPad(AppPreference.getString("serialNumber"), " ", 15, false)
+            val f63 = "$deviceSerial$bankCode"
+            addFieldByHex(63, f63)
+            //endregion
 
-    }
+        }
 
-    private fun insertSecurityKeys(ppk: ByteArray, dpk: ByteArray,
-                                   ppkKcv:ByteArray, dpkKcv:ByteArray,callback: (Boolean) -> Unit) {
-        var result : Boolean? = true
+    private fun insertSecurityKeys(
+        ppk: ByteArray, dpk: ByteArray,
+        ppkKcv: ByteArray, dpkKcv: ByteArray, callback: (Boolean) -> Unit
+    ) {
+        var result: Boolean? = true
         try {
             val dTmkArr = RSAProvider.decriptTMK(tmk.hexStr2ByteArr(), rsa)
             val decriptedTmk = dTmkArr[0].hexStr2ByteArr()
 
-            val x = "TMK=${decriptedTmk.byteArr2HexStr()}\nPPK=${ppk.byteArr2HexStr()} KCV=${ppkKcv.byteArr2HexStr()}\nDPK=${dpk.byteArr2HexStr()} KCV=${dpkKcv.byteArr2HexStr()}"
+            val x =
+                "TMK=${decriptedTmk.byteArr2HexStr()}\nPPK=${ppk.byteArr2HexStr()} KCV=${ppkKcv.byteArr2HexStr()}\nDPK=${dpk.byteArr2HexStr()} KCV=${dpkKcv.byteArr2HexStr()}"
             logger(TAG, x)
-            result = VFService.injectTMK(decriptedTmk , ppk , ppkKcv , dpk , dpkKcv)
-            if(result == true){
+            result = VFService.injectTMK(decriptedTmk, ppk, ppkKcv, dpk, dpkKcv)
+            if (result == true) {
                 VFService.vfBeeper?.startBeep(200)
             }
-            Log.d("Key Insert Success:- " , result.toString())
+            Log.d("Key Insert Success:- ", result.toString())
         } catch (e: Exception) {
             e.printStackTrace()
             logger("Key Exchange", e.message ?: "")
@@ -714,7 +754,7 @@ suspend fun downloadPromo() {
             addField(11, ROCProvider.getRoc().toString())
             addField(24, Nii.DEFAULT.nii)
 
-            addFieldByHex(41, tpt.terminalId )
+            addFieldByHex(41, tpt.terminalId)
 
             addFieldByHex(48, Field48ResponseTimestamp.getF48Data())
 
@@ -729,7 +769,7 @@ suspend fun downloadPromo() {
             //endregion
 
 
-            addFieldByHex(60,"00000000000000")
+            addFieldByHex(60, "00000000000000")
         }
 
         //region======First Get header and footer, then proceed for image downloading =========
@@ -745,9 +785,9 @@ suspend fun downloadPromo() {
             val roc = res.isoMap[11]?.rawData
             if (roc != null) ROCProvider.incrementFromResponse(roc) else ROCProvider.increment()
             //endregion
-            if(res.isoMap[39]?.parseRaw2String() == "00") {
+            if (res.isoMap[39]?.parseRaw2String() == "00") {
                 val f59 = res.isoMap[59]?.parseRaw2String() ?: ""
-                if(f59.isNotEmpty()){
+                if (f59.isNotEmpty()) {
                     AppPreference.saveString(AppPreference.HEADER_FOOTER, f59)
                 }
             }
@@ -800,14 +840,14 @@ suspend fun downloadPromo() {
 
 }
 
-suspend fun getPromo(
+suspend fun getPromotionData(
     field57RequestData: String,
-    processingCode: String,
-    cb: (Boolean, String, String) -> Unit
+    processingCode: String, tpt: TerminalParameterTable,
+    cb: (Boolean, String, String, String) -> Unit
 ) {
-    val tpt = TerminalParameterTable.selectFromSchemeTable()
+
     // Promo Available or not at TID
-    if ((tpt?.reservedValues?.get(4)).toString().toInt() == 1) {
+    if ((tpt.reservedValues[4]).toString().toInt() == 1) {
         val idw = IsoDataWriter().apply {
             val terminalData = TerminalParameterTable.selectFromSchemeTable()
             if (terminalData != null) {
@@ -866,6 +906,7 @@ suspend fun getPromo(
         var responseMsg = ""
         var isBool = false
         HitServer.hitServer(idwByteArray, { result, success ->
+            responseMsg = result
             if (success) {
                 ROCProviderV2.incrementFromResponse(
                     ROCProviderV2.getRoc(AppPreference.getBankCode()).toString(),
@@ -887,14 +928,15 @@ suspend fun getPromo(
                     responseMsg = responseIsoData.isoMap[58]?.parseRaw2String().toString()
                 }
                 isBool = successResponseCode == "00"
-                cb(isBool, responseMsg, responseField57)
+                if (processingCode == ProcessingCode.INITIALIZE_PROMOTION.code)
+                    cb(isBool, responseMsg, responseField57, result)
+                else cb(true, responseMsg, responseField57, result)
             } else {
                 ROCProviderV2.incrementFromResponse(
                     ROCProviderV2.getRoc(AppPreference.getBankCode()).toString(),
                     AppPreference.getBankCode()
                 )
-                isBool = false
-                cb(isBool, responseMsg, responseField57)
+                cb(isBool, responseMsg, responseField57, result)
             }
         }, {})
     }

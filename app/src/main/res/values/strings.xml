@@ -402,6 +402,17 @@
     <string name="cashbackPercentage">CashBack %</string>
     <string name="cashback_amount">CashBack Amount</string>
     <string name="netPayAmount">Net Pay Amount</string>
+    <string name="bonus_promo">BONUS PROMO</string>
+    <string name="redeem_promo">REDEEM PROMO</string>
+    <string name="send_promo">SEND PROMO</string>
+    <string name="add_customer">ADD CUSTOMER</string>
+    <string name="enter_reg_mobile_no_of_consented_customer">Enter Reg. Mobile No. of consented Customer</string>
+    <string name="enter_last_4_digits_of_consented_customer_s_credit_card_number">Enter Last 4 digits of consented Customer\'s Credit Card Number</string>
+    <string name="enter_promo_code">Enter Promo Code</string>
+    <string name="age">Age</string>
+    <string name="gender">Gender</string>
+    <string name="invalid_promo">Enter valid Promo Code</string>
+    <string name="invalid_age">Enter valid Age</string>
     <string name="auto_settlement">Auto Settlement</string>
     <string name="do_you_want_to_auto_settle_batch">Do You Want To Auto Settle Batch?</string>
 

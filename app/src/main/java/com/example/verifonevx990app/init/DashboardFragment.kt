@@ -281,6 +281,7 @@ class DashboardFragment : Fragment() {
             list1.clear()
             list2.clear()
             val tpt = TerminalParameterTable.selectFromSchemeTable()
+
             if (tpt != null) {
                 val tableClass =
                     tpt::class.java //Class Name (class com.bonushub.pax.utilss.TerminalParameterTable)
@@ -372,68 +373,7 @@ class DashboardFragment : Fragment() {
             }
         }
     }
-    // endregion
-    /* private fun initUI(v: View) {
-         val bottomNavigationView = activity?.findViewById<BottomNavigationView>(R.id.ma_bnv)
-         if (bottomNavigationView is BottomNavigationView) {
-             bottomNavigationView.visibility = View.VISIBLE
-             bottomNavigationView.menu.findItem(R.id.home)?.isChecked = true
-         }
 
-         //Fetching Update Key Value From AppPreference Memory to Default Send Confirmation Packet for First Time After App Update
-         //if Merchant using same AppVersion but getting App Update
-         isUpdate = AppPreference.getBoolean("isUpdate")
-         Log.d("Update Value:- ", isUpdate.toString())
-
-         //Below method is only called once after App is Updated to newer version:-
-         sendConfirmationToHost()
-         activity?.let { hideSoftKeyboard(it) }
-         activity?.let { refreshToolbarLogos(it) }
-         if (toRefresh || itemList.isEmpty()) {
-             GlobalScope.launch {
-                 itemList.clear()
-                 val tpt = TerminalParameterTable.selectFromSchemeTable()
-                 if (tpt != null) {
-                     val tableClass =
-                         tpt::class.java //Class Name (class com.bonushub.pax.utilss.TerminalParameterTable)
-                     for (e in tableClass.declaredFields) {
-                         val ann = e.getAnnotation(BHDashboardItem::class.java)
-                     //If table's field  having the particular annotation as @BHDasboardItem then it returns the value ,If not then return null
-                         if (ann != null) {
-                             e.isAccessible = true
-                             val t = e.get(tpt) as String
-                             if (t == "1") {
-                                 itemList.add(ann.item)
-                                 if (ann.childItem != EDashboardItem.NONE) {
-                                     itemList.add(ann.childItem)
-                                 }
-                             }
-                         }
-                     }
-                 } else {
-                     itemList.add(EDashboardItem.NONE)
-                 }
-
-                 itemList.sortWith(compareBy{it.rank})
-
-                 launch(Dispatchers.Main) {
-                     binding?.dashFragRv?.apply {
-                         layoutManager = GridLayoutManager(context, 2)
-                         adapter = mAdapter
-                     }
-                     mAdapter.notifyDataSetChanged()
-                 }
-             }
-             toRefresh = false
-         }else{
-             binding?.dashFragRv?.apply {
-                 layoutManager = GridLayoutManager(context, 2)
-                 adapter = mAdapter
-             }
-             mAdapter.notifyDataSetChanged()
-         }
-
-     }*/
 
     override fun onAttach(context: Context) {
         super.onAttach(context)

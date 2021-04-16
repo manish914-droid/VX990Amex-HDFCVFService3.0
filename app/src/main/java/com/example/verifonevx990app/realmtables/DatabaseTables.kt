@@ -1942,8 +1942,12 @@ open class TerminalParameterTable() : RealmObject(), Parcelable {
     @field:BHDashboardItem(EDashboardItem.EMI_ENQUIRY)
     var bankEnquiry: String = ""
 
-    @field:BHDashboardItem(EDashboardItem.MERCHANT_PROMO)
+    @field:BHDashboardItem(EDashboardItem.BONUS_PROMO)
     var hasPromo: String = ""
+
+    var isPromoAvailable = false
+    var isPromoAvailableOnPayment = false
+    var promoVersionNo: String = "000000000000"
 
     var bankEnquiryMobNumberEntry: Boolean = false
 
@@ -2026,8 +2030,12 @@ open class TerminalParameterTable() : RealmObject(), Parcelable {
         tidName = parcel.readString().toString()
         roc = parcel.readString().toString()
         bankEnquiry = parcel.readString().toString()
+
         bankEnquiryMobNumberEntry = parcel.readByte() != 0.toByte()
         //endregion
+        isPromoAvailable = parcel.readByte() != 0.toByte()
+        isPromoAvailableOnPayment = parcel.readByte() != 0.toByte()
+        promoVersionNo = parcel.readString().toString()
 
     }
 
@@ -2108,7 +2116,9 @@ open class TerminalParameterTable() : RealmObject(), Parcelable {
         parcel.writeString(bankEnquiry)
         parcel.writeByte(if (bankEnquiryMobNumberEntry) 1 else 0)
         //endregion
-
+        parcel.writeByte(if (isPromoAvailable) 1 else 0)
+        parcel.writeByte(if (isPromoAvailableOnPayment) 1 else 0)
+        parcel.writeString(promoVersionNo)
     }
 
     override fun describeContents(): Int {
@@ -2177,7 +2187,6 @@ open class TerminalParameterTable() : RealmObject(), Parcelable {
                 it.commitTransaction()
             }.await()
         }
-
 
         fun updateTerminalDataInvoiceNumber(invoiceNumber: String) = runBlocking {
             //  var tpt: TerminalParameterTable? = null
@@ -2258,6 +2267,18 @@ open class TerminalParameterTable() : RealmObject(), Parcelable {
                     )
                 }
             }
+
+        fun updateMerchantPromoData(data: Triple<String, Boolean, Boolean>) = runBlocking {
+            var tpt: TerminalParameterTable? = null
+            getRealm {
+                val tp = it.where(TerminalParameterTable::class.java).findFirst()
+                it.beginTransaction()
+                tp?.promoVersionNo = data.first
+                tp?.isPromoAvailable = data.second
+                tp?.isPromoAvailableOnPayment = data.third
+                it.commitTransaction()
+            }.await()
+        }
 
     } // end of companion object block
 
@@ -4435,7 +4456,7 @@ enum class EDashboardItem(
     PENDING_OFFLINE_SALE("View Offline Sale", R.drawable.ic_pending_preauth),
     PRE_AUTH_CATAGORY("Pre-Auth", R.drawable.ic_preauth, 9),
     MORE("View More", R.drawable.ic_arrow_down, 999),
-    MERCHANT_PROMO("Merchant Promo", R.drawable.ic_cash_advance, 15),
+    BONUS_PROMO("Bonus Promo", R.drawable.ic_cash_advance, 15),
     EMI_PRO("Brand EMI By Access Code", R.drawable.ic_emi, 16),
 
     // just for handling the test emi not used in dashboard items

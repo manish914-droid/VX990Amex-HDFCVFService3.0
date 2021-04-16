@@ -46,6 +46,10 @@ class InitiateCrossSellProcessFragment : Fragment(R.layout.fragment_initiate_cro
     private var field57Data: String? = null
     private var transactionReferenceNumber: String? = null
 
+    var dataCounter = 0
+    var hasMoreData = false
+    var downloadedReportDataList = arrayListOf<ReportDownloadedModel>()
+
     private var binding: FragmentInitiateCrossSellProcessBinding? = null
 
     override fun onCreateView(
@@ -59,7 +63,7 @@ class InitiateCrossSellProcessFragment : Fragment(R.layout.fragment_initiate_cro
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        binding?.subHeaderView?.backImageButton?.setOnClickListener { fragmentManager?.popBackStackImmediate() }
+        binding?.subHeaderView?.backImageButton?.setOnClickListener { parentFragmentManager.popBackStackImmediate() }
         binding?.subHeaderView?.subHeaderText?.text = fragTitle
         crossSellMobileCardView = view.findViewById(R.id.crossSellMobileCardView)
         reportLL = view.findViewById(R.id.reportLL)
@@ -158,7 +162,9 @@ class InitiateCrossSellProcessFragment : Fragment(R.layout.fragment_initiate_cro
     }
 
     private fun hdfcCreditCardValidation(): Boolean {
-        return binding?.mobileNoET?.text?.length in 10..13
+        return binding?.mobileNoET?.text?.length == 10 || binding?.mobileNoET?.text?.length == 13
+
+
     }
 
     //Below method is used to show enter OTP dialog:-
@@ -177,7 +183,7 @@ class InitiateCrossSellProcessFragment : Fragment(R.layout.fragment_initiate_cro
 
         val otpET = dialog.findViewById<BHEditText>(R.id.otpET)
         val closeDialogIMG = dialog.findViewById<ImageView>(R.id.closeDialogIMG)
-        val otpSubmitBTN = dialog.findViewById<ImageView>(R.id.otpSubmitBTN)
+        val otpSubmitBTN = dialog.findViewById<BHButton>(R.id.otpSubmitBTN)
 
         closeDialogIMG.setOnClickListener {
             mCountDown?.cancel()
@@ -306,9 +312,6 @@ class InitiateCrossSellProcessFragment : Fragment(R.layout.fragment_initiate_cro
         dialog.show()
     }
 
-    var dataCounter = 0
-    var hasMoreData = false
-    var downloadedReportDataList = arrayListOf<ReportDownloadedModel>()
 
     //Below method is used to show enter OTP dialog:-
     private fun sendMailPrintChooserDialog(whichMonth: String) {

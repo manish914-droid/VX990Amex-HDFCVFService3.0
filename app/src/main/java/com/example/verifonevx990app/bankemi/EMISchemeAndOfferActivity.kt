@@ -180,7 +180,7 @@ internal class EMISchemeAndOfferAdapter(
         }
 
         //region==========================Checked Particular Row of RecyclerView Logic:-
-        if (index === position) {
+        if (index == position) {
             holder.binding.cardView.strokeColor = Color.parseColor("#13E113")
             holder.binding.schemeCheckIv.visibility = View.VISIBLE
             schemeSelectCB(position)
