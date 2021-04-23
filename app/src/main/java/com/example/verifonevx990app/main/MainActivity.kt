@@ -492,7 +492,7 @@ class MainActivity : BaseActivity(), IFragmentRequest,
         showProgress(getString(R.string.please_wait_aaplication_is_configuring_updates))
         if (systemManager != null && !TextUtils.isEmpty(filePath)) {
             try {
-                systemManager.installApp(
+                systemManager?.installApp(
                     filePath, object : IAppInstallObserver.Stub() {
                         @Throws(RemoteException::class)
                         override fun onInstallFinished(packageName: String, returnCode: Int) {

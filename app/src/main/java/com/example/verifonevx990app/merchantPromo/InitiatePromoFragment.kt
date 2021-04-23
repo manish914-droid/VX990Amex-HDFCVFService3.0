@@ -1,10 +1,8 @@
 package com.example.verifonevx990app.merchantPromo
 
 import android.app.Activity
-import android.app.AlertDialog
 import android.app.Dialog
 import android.content.Context
-import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
 import android.os.CountDownTimer
@@ -14,10 +12,10 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
 import android.view.inputmethod.InputMethodManager
-import android.widget.ImageView
 import android.widget.RadioButton
 import androidx.fragment.app.Fragment
 import com.example.verifonevx990app.R
+import com.example.verifonevx990app.databinding.EnterOtpDialogBinding
 import com.example.verifonevx990app.databinding.FragmentInitiatePromoBinding
 import com.example.verifonevx990app.main.MainActivity
 import com.example.verifonevx990app.realmtables.TerminalParameterTable
@@ -104,7 +102,7 @@ class InitiatePromoFragment : Fragment(R.layout.fragment_initiate_promo) {
                     if (validatePhoneNumber()) {
                         if (validatePromoCode()) {
                             VFService.showToast("CORRECT---")
-
+                            (activity as BaseActivity).showProgress()
                             GlobalScope.launch(Dispatchers.IO) {
 
                                 val tpt = TerminalParameterTable.selectFromSchemeTable()
@@ -114,9 +112,10 @@ class InitiatePromoFragment : Fragment(R.layout.fragment_initiate_promo) {
                                     }|${initiateViewBinding?.promoCodeET?.text?.toString()?.trim()}"
                                     getPromotionData(
                                         field57Data,
-                                        ProcessingCode.REDEEM_PROMO_WITHOUT_OTP.code, tpt
-                                    )
-                                    { isSuccess, responseMsg, responsef57, fullResponse ->
+                                        ProcessingCode.REDEEM_PROMO_WITHOUT_OTP.code,
+                                        tpt
+                                    ) { isSuccess, responseMsg, responsef57, fullResponse ->
+                                        (activity as BaseActivity).hideProgress()
                                         if (isSuccess) {
                                             val responseIsoData: IsoDataReader =
                                                 readIso(fullResponse, false)
@@ -125,25 +124,27 @@ class InitiatePromoFragment : Fragment(R.layout.fragment_initiate_promo) {
                                                     .toString()
                                             when (successResponseCode) {
                                                 "00" -> {
-                                                    (activity as BaseActivity).alertBoxWithAction(
-                                                        null,
-                                                        null,
-                                                        getString(R.string.success_message),
-                                                        responseMsg,
-                                                        false,
-                                                        getString(R.string.positive_button_ok),
-                                                        {
-                                                            Log.e(
-                                                                "REDDEM PROMO",
-                                                                "CUSTOMER REDEEM PROMOTION, SUCCESSFULLY"
-                                                            )
+                                                    GlobalScope.launch(Dispatchers.Main) {
+                                                        (activity as BaseActivity).alertBoxWithAction(
+                                                            null,
+                                                            null,
+                                                            getString(R.string.success_message),
+                                                            responseMsg,
+                                                            false,
+                                                            getString(R.string.positive_button_ok),
+                                                            {
+                                                                Log.e(
+                                                                    "REDDEM PROMO",
+                                                                    "CUSTOMER REDEEM PROMOTION, SUCCESSFULLY"
+                                                                )
 
-                                                            // if 00 means it is a without otp redumption
-                                                            //  getPromFromServerAndShow()
-                                                        },
-                                                        {
-                                                            // for no button
-                                                        })
+                                                                // if 00 means it is a without otp redumption
+                                                                //  getPromFromServerAndShow()
+                                                            },
+                                                            {
+                                                                // for no button
+                                                            })
+                                                    }
                                                 }
 
                                                 "05" -> {
@@ -151,7 +152,7 @@ class InitiatePromoFragment : Fragment(R.layout.fragment_initiate_promo) {
                                                     // now 980400
 
                                                     GlobalScope.launch(Dispatchers.Main) {
-
+//newDia()
                                                         enterOTPDialog()
                                                     }
                                                 }
@@ -218,6 +219,7 @@ class InitiatePromoFragment : Fragment(R.layout.fragment_initiate_promo) {
                     //Add Customer  mobile  ,age,gender,
                     if (validatePhoneNumber()) {
                         if (validateAge()) {
+                            (activity as BaseActivity).showProgress()
                             VFService.showToast("CORRECT+++")
                             Log.e("GENDER", gender.toString())
                             GlobalScope.launch(Dispatchers.IO) {
@@ -251,6 +253,7 @@ class InitiatePromoFragment : Fragment(R.layout.fragment_initiate_promo) {
                                         tpt
                                     )
                                     { isSuccess, responseMsg, responsef57, fullResponse ->
+                                        (activity as BaseActivity).hideProgress()
                                         if (isSuccess) {
                                             val responseIsoData: IsoDataReader =
                                                 readIso(fullResponse, false)
@@ -297,7 +300,7 @@ class InitiatePromoFragment : Fragment(R.layout.fragment_initiate_promo) {
                                                             false,
                                                             getString(R.string.positive_button_ok),
                                                             {
-                                                                parentFragmentManager.popBackStackImmediate()
+                                                                //    parentFragmentManager.popBackStackImmediate()
                                                                 getPromFromServerAndShow()
                                                             },
                                                             {
@@ -369,6 +372,7 @@ class InitiatePromoFragment : Fragment(R.layout.fragment_initiate_promo) {
     }
 
     private fun getPromFromServerAndShow() {
+        (activity as BaseActivity).showProgress()
         GlobalScope.launch(Dispatchers.IO) {
             val tpt = TerminalParameterTable.selectFromSchemeTable()
             if (tpt != null) {
@@ -376,6 +380,7 @@ class InitiatePromoFragment : Fragment(R.layout.fragment_initiate_promo) {
                     "000000000000",
                     ProcessingCode.INITIALIZE_PROMOTION.code, tpt
                 ) { isSuccess, responseMsg, responsef57, fullResponse ->
+                    (activity as BaseActivity).hideProgress()
                     if (isSuccess) {
                         val spliter = responsef57.split("|")
                         if (spliter[1] == "1") {
@@ -438,15 +443,14 @@ class InitiatePromoFragment : Fragment(R.layout.fragment_initiate_promo) {
 
     private fun validatePromoCode(): Boolean {
         return initiateViewBinding?.promoCodeET?.text?.length ?: 0 == 6
-
     }
 
     private fun getCountDownTimer(
         secondsInLong: Long,
-        dialog: Dialog
+        dialogBinding: EnterOtpDialogBinding, dialog: Dialog
     ): CountDownTimer {
         return object : CountDownTimer(secondsInLong, 1000) {
-            val expTime = dialog.findViewById<BHTextView>(R.id.expireTime)
+            val expTime = dialogBinding.expireTime
             override fun onTick(millisUntilFinished: Long) {
                 if (millisUntilFinished < 20000) {
 
@@ -466,7 +470,7 @@ class InitiatePromoFragment : Fragment(R.layout.fragment_initiate_promo) {
             }
 
             override fun onFinish() {
-                // resendLL.visibility = View.VISIBLE
+                // dialogBinding?.resendLL.visibility = View.VISIBLE
                 expTime.visibility = View.GONE
                 expTime.setTextColor(Color.parseColor("#3a61d3"))
                 dialog.dismiss()
@@ -483,16 +487,13 @@ class InitiatePromoFragment : Fragment(R.layout.fragment_initiate_promo) {
                             { alertPositiveCallback ->
                                 if (alertPositiveCallback)
                                     VFService.showToast("Todo here")
-                                // todo back here  navigateToDashboard()
+                                // todo back here
                             },
                             {})
                     } catch (ex: Exception) {
                         ex.printStackTrace()
                         VFService.showToast(getString(R.string.otp_time_out))
-                        startActivity(Intent(activity, MainActivity::class.java).apply {
-                            flags =
-                                Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_CLEAR_TASK
-                        })
+                        //
                     }
                 }
             }
@@ -502,10 +503,11 @@ class InitiatePromoFragment : Fragment(R.layout.fragment_initiate_promo) {
 
     //Below method is used to show enter OTP dialog:-
     private fun enterOTPDialog() {
-        val dialog = AlertDialog.Builder(requireActivity()).create()
+        val dialog = androidx.appcompat.app.AlertDialog.Builder(requireActivity()).create()
         dialog.setCancelable(false)
-        dialog.setContentView(R.layout.enter_otp_dialog)
-        mCountDown = getCountDownTimer(otpExpireTime, dialog)
+        val bindingg = EnterOtpDialogBinding.inflate(LayoutInflater.from(activity))
+        dialog.setView(bindingg.root)
+        mCountDown = getCountDownTimer(otpExpireTime, bindingg, dialog)
         mCountDown?.start()
         dialog.window?.attributes?.windowAnimations = R.style.DialogAnimation
         val window = dialog.window
@@ -514,9 +516,10 @@ class InitiatePromoFragment : Fragment(R.layout.fragment_initiate_promo) {
             WindowManager.LayoutParams.WRAP_CONTENT
         )
 
-        val otpET = dialog.findViewById<BHEditText>(R.id.otpET)
-        val closeDialogIMG = dialog.findViewById<ImageView>(R.id.closeDialogIMG)
-        val otpSubmitBTN = dialog.findViewById<BHButton>(R.id.otpSubmitBTN)
+        val otpET = bindingg.otpET//dialog.findViewById<BHEditText>(R.id.otpET)
+        val closeDialogIMG =
+            bindingg.closeDialogIMG//dialog.findViewById<ImageView>(R.id.closeDialogIMG)
+        val otpSubmitBTN = bindingg.otpSubmitBTN//dialog.findViewById<BHButton>(R.id.otpSubmitBTN)
 
         closeDialogIMG.setOnClickListener {
             mCountDown?.cancel()
@@ -566,16 +569,17 @@ class PromoData : Serializable {
 
             promoList.add(singleRecord)
         }
-        val singleRecord = PromoData()
 
-        singleRecord.promoID = "dataList[0]"
-        singleRecord.promoName = "OFFER 2 , This IS a Special OFFER For test"
-        singleRecord.promoDescription = "dataList[2]"
-        singleRecord.startDate = "dataList[3]"
-        singleRecord.endDate = "dataList[4]"
-        singleRecord.isOTPRequired = "dataList[5]"
-        singleRecord.action = "dataList[6]"
-        promoList.add(singleRecord)
+        //   just for test purpose
+        /*  val singleRecord = PromoData()
+          singleRecord.promoID = "dataList[0]"
+          singleRecord.promoName = "OFFER 2 , This IS a Special OFFER For test"
+          singleRecord.promoDescription = "dataList[2]"
+          singleRecord.startDate = "dataList[3]"
+          singleRecord.endDate = "dataList[4]"
+          singleRecord.isOTPRequired = "dataList[5]"
+          singleRecord.action = "dataList[6]"
+          promoList.add(singleRecord)*/
         return promoList
 
     }

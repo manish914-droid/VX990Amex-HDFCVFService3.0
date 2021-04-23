@@ -83,6 +83,7 @@ class PromoListFragment : Fragment() {
     }
 
     private fun gotoHost() {
+        (activity as BaseActivity).showProgress()
         GlobalScope.launch(Dispatchers.IO) {
             val tpt = TerminalParameterTable.selectFromSchemeTable()
             if (tpt != null) {
@@ -92,6 +93,7 @@ class PromoListFragment : Fragment() {
                 }|${age}|${gender}|${selectedPromoId}"
                 getPromotionData(field57Data, ProcessingCode.SEND_PROMO.code, tpt)
                 { isSuccess, responseMsg, responsef57, fullResponse ->
+                    (activity as BaseActivity).hideProgress()
                     if (isSuccess) {
                         val responseIsoData: IsoDataReader =
                             readIso(fullResponse, false)

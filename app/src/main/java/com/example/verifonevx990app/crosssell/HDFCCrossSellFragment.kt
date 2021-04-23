@@ -24,6 +24,7 @@ class HDFCCrossSellFragment : Fragment(R.layout.cross_sell_view) {
     private var jumboLoan: BHButton? = null
     private var creditLimitIncrease: BHButton? = null
     private var reports: BHButton? = null
+    private var flexiPayBtn: BHButton? = null
 
     private var crossSellViewBinding: CrossSellViewBinding? = null
 
@@ -50,6 +51,7 @@ class HDFCCrossSellFragment : Fragment(R.layout.cross_sell_view) {
         creditLimitIncrease = view.findViewById(R.id.creditLimitIncrease)
         reports = view.findViewById(R.id.reports)
         backImageButton = view.findViewById(R.id.back_image_button)
+        flexiPayBtn = view.findViewById(R.id.flexipay)
         //endregion
 
         //region HIDE/SHOW Buttons on condition based======
@@ -59,6 +61,11 @@ class HDFCCrossSellFragment : Fragment(R.layout.cross_sell_view) {
 
         //region Attaching Click Events START==========
         backImageButton?.setOnClickListener { parentFragmentManager.popBackStackImmediate() }
+
+        backImageButton?.setOnClickListener {
+
+
+        }
         hdfcCreditCard?.setOnClickListener {
             inflateCrossSellProcessFragment(
                 CrossSellOptions.HDFC_CREDIT_CARD.heading,
@@ -133,6 +140,7 @@ class HDFCCrossSellFragment : Fragment(R.layout.cross_sell_view) {
 //ENUMS
 //Below enum class is used to detect Cross Sell List Options:-
 enum class CrossSellOptions(val heading: String, val code: Int) {
+    FLEXI_PAY("Flexi Pay", 12),
     CREDIT_LIMIT_INCREASE("Credit Limit Increase", 13),
     JUMBO_LOAN("Jumbo Loan", 14),
     INSTA_LOAN("Insta Loan", 15),

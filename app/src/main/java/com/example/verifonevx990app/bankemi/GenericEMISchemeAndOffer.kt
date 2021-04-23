@@ -43,6 +43,7 @@ class GenericEMISchemeAndOffer(
                     cardBinValue.substring(0, 8)
                 }^$transactionAmount"
             } else {
+                //9^0^^200000
                 "$bankEMIRequestCode^0^1^0^^${cardBinValue.substring(0, 8)}^$transactionAmount"
             }
         GlobalScope.launch(Dispatchers.IO) {

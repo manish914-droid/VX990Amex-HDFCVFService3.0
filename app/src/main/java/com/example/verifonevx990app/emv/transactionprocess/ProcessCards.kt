@@ -41,7 +41,6 @@ class ProcessCard(
 
     init {
         detectCard()
-
     }
 
     // Detecting the card type ie(emv,cls,mag...)

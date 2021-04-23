@@ -31,6 +31,19 @@
                 android:orientation="vertical"
                 android:padding="@dimen/pad_16">
 
+
+                <com.example.verifonevx990app.vxUtils.BHButton
+                    android:id="@+id/flexipay"
+                    style="@style/ActionButtonStyle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:layout_marginTop="@dimen/pad_16"
+                    android:background="@drawable/basic_button_bg"
+                    android:text="@string/flexi_pay"
+                    android:visibility="visible"
+                    app:fname="bold" />
+
                 <com.example.verifonevx990app.vxUtils.BHButton
                     android:id="@+id/hdfcCreditCard"
                     style="@style/ActionButtonStyle"
