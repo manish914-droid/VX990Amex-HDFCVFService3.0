@@ -703,6 +703,7 @@ class MainActivity : BaseActivity(), IFragmentRequest,
                 if (data.isEmpty()) {
                     if (checkInternetConnection()) {
                         Log.d("Bank EMI Clicked:- ", "Clicked")
+                        showProgress()
                         GenericEMIIssuerTAndC { issuerTermsAndConditionData, issuerHostResponseCodeAndMsg ->
                             val issuerTAndCData = issuerTermsAndConditionData.first
                             val responseBool = issuerTermsAndConditionData.second
@@ -731,6 +732,7 @@ class MainActivity : BaseActivity(), IFragmentRequest,
                                         }
                                     }
                                 }
+                                hideProgress()
                                 startActivityForResult(
                                     Intent(
                                         this,
@@ -747,6 +749,7 @@ class MainActivity : BaseActivity(), IFragmentRequest,
                                     }, EIntentRequest.TRANSACTION.code
                                 )
                             } else {
+                                hideProgress()
                                 startActivityForResult(
                                     Intent(
                                         this,

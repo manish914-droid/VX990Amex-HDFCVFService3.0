@@ -431,7 +431,17 @@ class NewInputAmountFragment : Fragment() {
                     }
                 }
 
-                EDashboardItem.BRAND_EMI -> enableDisableMobileAndInvoiceField()
+                EDashboardItem.BRAND_EMI -> {
+                    if (binding?.saleAmount?.text.toString()
+                            .trim() >= brandEMIDataModal?.getProductMinAmount() ?: "0"
+                        && binding?.saleAmount?.text.toString()
+                            .trim() <= brandEMIDataModal?.getProductMaxAmount() ?: "0"
+                    ) {
+                        enableDisableMobileAndInvoiceField()
+                    } else {
+                        VFService.showToast("Entered Amount Should be in Product Min & Max Amount Range")
+                    }
+                }
 
                 EDashboardItem.CASH_ADVANCE -> {
                     iFrReq?.onFragmentRequest(

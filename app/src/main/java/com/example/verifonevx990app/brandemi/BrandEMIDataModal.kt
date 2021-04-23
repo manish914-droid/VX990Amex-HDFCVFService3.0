@@ -17,6 +17,8 @@ class BrandEMIDataModal : Serializable {
     private var inputDataType: String? = null
     private var minLength: String? = null
     private var maxLength: String? = null
+    private var productMinAmount: String? = null
+    private var productMaxAmount: String? = null
 
     fun setBrandID(brID: String) {
         this.brandID = brID
@@ -128,5 +130,21 @@ class BrandEMIDataModal : Serializable {
 
     fun getMaxLength(): String? {
         return maxLength
+    }
+
+    fun setProductMinAmount(amount: String) {
+        this.productMinAmount = amount
+    }
+
+    fun getProductMinAmount(): String? {
+        return productMinAmount
+    }
+
+    fun setProductMaxAmount(amount: String) {
+        this.productMaxAmount = amount
+    }
+
+    fun getProductMaxAmount(): String? {
+        return productMaxAmount
     }
 }

@@ -513,7 +513,7 @@ class ProcessCard(
                                         iemv?.abortEMV()*/
                                         Log.e("bb CC", "------->>")
                                         if (!TextUtils.isEmpty(cardBinValue)) {
-                                            /*GlobalScope.launch(Dispatchers.Main) { (activity as VFTransactionActivity).showProgress();iemv?.stopCheckCard() }*/
+                                            GlobalScope.launch(Dispatchers.Main) { (activity as VFTransactionActivity).showProgress();/*iemv?.stopCheckCard()*/ }
                                             GenericEMISchemeAndOffer(
                                                 activity,
                                                 cardProcessedDataModal,
