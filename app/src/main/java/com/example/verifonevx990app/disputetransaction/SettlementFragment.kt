@@ -51,6 +51,7 @@ class SettlementFragment : Fragment(R.layout.activity_settlement_view) {
         lv_heading_view = view.findViewById(R.id.lv_heading_view)
         empty_view_placeholder = view.findViewById(R.id.empty_view_placeholder)
 
+
         batchList = BatchFileDataTable.selectBatchData()
         getAndInflateSettlementData()
 

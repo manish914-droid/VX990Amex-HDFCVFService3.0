@@ -134,11 +134,13 @@ class DashboardFragment : Fragment() {
 
         //region======================Change isAutoSettleDone Boolean Value to False if Date is greater then
         //last saved Auto Settle Date:-
-        if (AppPreference.getString(AppPreference.LAST_SAVED_AUTO_SETTLE_DATE).toInt() > 0) {
-            if (getSystemTimeIn24Hour().terminalDate().toInt() >
-                AppPreference.getString(AppPreference.LAST_SAVED_AUTO_SETTLE_DATE).toInt()
-            ) {
-                AppPreference.saveBoolean(AppPreference.IsAutoSettleDone, false)
+        if (!TextUtils.isEmpty(AppPreference.getString(AppPreference.LAST_SAVED_AUTO_SETTLE_DATE))) {
+            if (AppPreference.getString(AppPreference.LAST_SAVED_AUTO_SETTLE_DATE).toInt() > 0) {
+                if (getSystemTimeIn24Hour().terminalDate().toInt() >
+                    AppPreference.getString(AppPreference.LAST_SAVED_AUTO_SETTLE_DATE).toInt()
+                ) {
+                    AppPreference.saveBoolean(AppPreference.IsAutoSettleDone, false)
+                }
             }
         }
         //endregion

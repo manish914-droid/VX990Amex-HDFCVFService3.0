@@ -90,9 +90,7 @@ class ProcessCard(
 
 
                             VFService.vfPinPad?.startPinInput(
-                                2,
-                                param,
-                                globleparam,
+                                2, param, globleparam,
                                 object : PinInputListener.Stub() {
                                     override fun onInput(len: Int, key: Int) {
                                         Log.d("Data", "PinPad onInput, len:$len, key:$key")
@@ -101,7 +99,6 @@ class ProcessCard(
                                     @Throws(RemoteException::class)
                                     override fun onConfirm(data: ByteArray, isNonePin: Boolean) {
                                         Log.d("Data", "PinPad onConfirm")
-                                        //   VFEmv.iemv?.importPin(1, data)
                                         Log.d(
                                             "SWIPEPIN",
                                             "PinPad hex encrypted data ---> " + Utility.byte2HexStr(
@@ -110,7 +107,9 @@ class ProcessCard(
                                         )
 
                                         cardProcessedDataModal.setGeneratePinBlock(
-                                            Utility.byte2HexStr(data)
+                                            Utility.byte2HexStr(
+                                                data
+                                            )
                                         )
 
                                         if (cardProcessedDataModal.getFallbackType() == EFallbackCode.EMV_fallback.fallBackCode)
@@ -149,7 +148,7 @@ class ProcessCard(
                         }
                     }
 
-                    //Reading data
+                    //Reading Swipe Card data
                     try {
                         iemv?.stopCheckCard()
                         println("Mag is calling")
@@ -277,65 +276,150 @@ class ProcessCard(
                                                     "FallBack"
                                                 )
                                             } else {
-                                                if (cardProcessedDataModal.getTransType() == TransactionType.SALE.type) {
-                                                    (activity as VFTransactionActivity).checkEmiInstaEmi(
-                                                        cardProcessedDataModal
-                                                    ) {
-                                                        cardProcessedDataModal = it
-                                                        if (cardProcessedDataModal.getTransType() == TransactionType.EMI_SALE.type) {
-
-                                                        } else {
-                                                            processSwipeCardWithPINorWithoutPIN(
-                                                                isPin,
-                                                                cardProcessedDataModal
+                                                //region================Condition Check and ProcessSwipeCardWithPinOrWithoutPin:-
+                                                when (cardProcessedDataModal.getTransType()) {
+                                                    TransactionType.SALE.type -> processSwipeCardWithPINorWithoutPIN(
+                                                        isPin, cardProcessedDataModal
+                                                    )
+                                                    TransactionType.EMI_SALE.type,
+                                                    TransactionType.BRAND_EMI.type -> {
+                                                        //region==========Implementing Scheme and Offer:-
+                                                        cardProcessedDataModal.setEmiTransactionAmount(
+                                                            transactionalAmt
+                                                        )
+                                                        if (!TextUtils.isEmpty(
+                                                                cardProcessedDataModal.getPanNumberData()
                                                             )
+                                                        ) {
+                                                            GlobalScope.launch(Dispatchers.Main) { (activity as VFTransactionActivity).showProgress();iemv?.stopCheckCard() }
+                                                            GenericEMISchemeAndOffer(
+                                                                activity,
+                                                                cardProcessedDataModal,
+                                                                cardProcessedDataModal.getPanNumberData()
+                                                                    ?: "",
+                                                                transactionalAmt
+                                                            ) { bankEMISchemeAndTAndCData, hostResponseCodeAndMessage ->
+                                                                GlobalScope.launch(Dispatchers.Main) {
+                                                                    if (hostResponseCodeAndMessage.first) {
+                                                                        (activity as VFTransactionActivity).startActivityForResult(
+                                                                            Intent(
+                                                                                activity,
+                                                                                EMISchemeAndOfferActivity::class.java
+                                                                            ).apply {
+                                                                                putParcelableArrayListExtra(
+                                                                                    "emiSchemeDataList",
+                                                                                    bankEMISchemeAndTAndCData.first as ArrayList<out Parcelable>
+                                                                                )
+                                                                                putParcelableArrayListExtra(
+                                                                                    "emiTAndCDataList",
+                                                                                    bankEMISchemeAndTAndCData.second as ArrayList<out Parcelable>
+                                                                                )
+                                                                                putExtra(
+                                                                                    "cardProcessedData",
+                                                                                    cardProcessedDataModal
+                                                                                )
+                                                                            },
+                                                                            EIntentRequest.BankEMISchemeOffer.code
+                                                                        )
+                                                                        (activity as VFTransactionActivity).hideProgress()
+                                                                    } else {
+                                                                        (activity as VFTransactionActivity).hideProgress()
+                                                                        (activity as VFTransactionActivity).alertBoxWithAction(
+                                                                            null,
+                                                                            null,
+                                                                            activity.getString(R.string.error),
+                                                                            hostResponseCodeAndMessage.second,
+                                                                            false,
+                                                                            activity.getString(R.string.positive_button_ok),
+                                                                            {
+                                                                                (activity as VFTransactionActivity).declinedTransaction()
+                                                                            },
+                                                                            {})
+                                                                    }
+
+                                                                }
+                                                            }
                                                         }
-
+                                                        //endregion
                                                     }
-                                                } else if (cardProcessedDataModal.getTransType() == TransactionType.EMI_SALE.type) {
-                                                    (activity as VFTransactionActivity).checkEmiInstaEmi(
-                                                        cardProcessedDataModal
-                                                    ) {
-                                                    }
-
-                                                } else {
-                                                    processSwipeCardWithPINorWithoutPIN(
-                                                        isPin,
-                                                        cardProcessedDataModal
+                                                    else -> processSwipeCardWithPINorWithoutPIN(
+                                                        isPin, cardProcessedDataModal
                                                     )
                                                 }
+                                                //endregion
                                             }
                                         } else {
-                                            if (cardProcessedDataModal.getTransType() == TransactionType.SALE.type) {
-                                                (activity as VFTransactionActivity).checkEmiInstaEmi(
-                                                    cardProcessedDataModal
-                                                ) {
-                                                    cardProcessedDataModal = it
-                                                    if (cardProcessedDataModal.getTransType() == TransactionType.EMI_SALE.type) {
-                                                        processSwipeCardWithPINorWithoutPIN(
-                                                            isPin,
-                                                            cardProcessedDataModal
+                                            //region================Condition Check and ProcessSwipeCardWithPinOrWithoutPin:-
+                                            when (cardProcessedDataModal.getTransType()) {
+                                                TransactionType.SALE.type -> processSwipeCardWithPINorWithoutPIN(
+                                                    isPin, cardProcessedDataModal
+                                                )
+                                                TransactionType.EMI_SALE.type,
+                                                TransactionType.BRAND_EMI.type -> {
+                                                    cardProcessedDataModal.setEmiTransactionAmount(
+                                                        transactionalAmt
+                                                    )
+                                                    //region==========Implementing Scheme and Offer:-
+                                                    if (!TextUtils.isEmpty(
+                                                            cardProcessedDataModal.getPanNumberData()
                                                         )
+                                                    ) {
+                                                        GlobalScope.launch(Dispatchers.Main) { (activity as VFTransactionActivity).showProgress();iemv?.stopCheckCard() }
+                                                        GenericEMISchemeAndOffer(
+                                                            activity,
+                                                            cardProcessedDataModal,
+                                                            cardProcessedDataModal.getPanNumberData()
+                                                                ?: "",
+                                                            transactionalAmt
+                                                        ) { bankEMISchemeAndTAndCData, hostResponseCodeAndMessage ->
+                                                            GlobalScope.launch(Dispatchers.Main) {
+                                                                if (hostResponseCodeAndMessage.first) {
+                                                                    (activity as VFTransactionActivity).startActivityForResult(
+                                                                        Intent(
+                                                                            activity,
+                                                                            EMISchemeAndOfferActivity::class.java
+                                                                        ).apply {
+                                                                            putParcelableArrayListExtra(
+                                                                                "emiSchemeDataList",
+                                                                                bankEMISchemeAndTAndCData.first as ArrayList<out Parcelable>
+                                                                            )
+                                                                            putParcelableArrayListExtra(
+                                                                                "emiTAndCDataList",
+                                                                                bankEMISchemeAndTAndCData.second as ArrayList<out Parcelable>
+                                                                            )
+                                                                            putExtra(
+                                                                                "cardProcessedData",
+                                                                                cardProcessedDataModal
+                                                                            )
+                                                                        },
+                                                                        EIntentRequest.BankEMISchemeOffer.code
+                                                                    )
+                                                                    (activity as VFTransactionActivity).hideProgress()
+                                                                } else {
+                                                                    (activity as VFTransactionActivity).hideProgress()
+                                                                    (activity as VFTransactionActivity).alertBoxWithAction(
+                                                                        null,
+                                                                        null,
+                                                                        activity.getString(R.string.error),
+                                                                        hostResponseCodeAndMessage.second,
+                                                                        false,
+                                                                        activity.getString(R.string.positive_button_ok),
+                                                                        {
+                                                                            (activity as VFTransactionActivity).declinedTransaction()
+                                                                        },
+                                                                        {})
+                                                                }
 
-                                                    } else {
-                                                        processSwipeCardWithPINorWithoutPIN(
-                                                            isPin,
-                                                            cardProcessedDataModal
-                                                        )
+                                                            }
+                                                        }
                                                     }
+                                                    //endregion
                                                 }
-                                            } else if (cardProcessedDataModal.getTransType() == TransactionType.EMI_SALE.type) {
-                                                (activity as VFTransactionActivity).checkEmiInstaEmi(
-                                                    cardProcessedDataModal
-                                                ) {
-                                                    //   iemv?.importCardConfirmResult(ConstIPBOC.importCardConfirmResult.pass.allowed)
-                                                }
-                                            } else {
-                                                processSwipeCardWithPINorWithoutPIN(
-                                                    isPin,
-                                                    cardProcessedDataModal
+                                                else -> processSwipeCardWithPINorWithoutPIN(
+                                                    isPin, cardProcessedDataModal
                                                 )
                                             }
+                                            //endregion
                                         }
                                     }
                                     //  }

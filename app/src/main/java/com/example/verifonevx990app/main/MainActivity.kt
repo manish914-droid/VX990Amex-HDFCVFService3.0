@@ -119,6 +119,7 @@ class MainActivity : BaseActivity(), IFragmentRequest,
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding?.root)
+        //VFService.showToast("Same Version Updated success By Ajay Thakur")
         initUI()
         decideHome()
 
@@ -451,8 +452,7 @@ class MainActivity : BaseActivity(), IFragmentRequest,
 
     //Below method is used to update App through HTTP/HTTPs:-
     private fun startHTTPSAppUpdate(appHostDownloadURL: String? = null) {
-        runBlocking(Dispatchers.IO) { SystemService.disconnectSystemService(this@MainActivity) }
-        showProgress()
+        showProgress(getString(R.string.please_wait_downloading_application_update))
         if (appHostDownloadURL != null) {
             AppUpdateDownloadManager(
                 "https://testapp.bonushub.co.in:8055/app/pos.zip",
@@ -471,15 +471,10 @@ class MainActivity : BaseActivity(), IFragmentRequest,
                         if (!TextUtils.isEmpty(path)) {
                             hideProgress()
                             Log.d("DownloadAppFilePath:- ", path)
-                            runBlocking(Dispatchers.IO) {
-                                SystemService.connectSystemService(this@MainActivity)
-                            }
                             autoInstallApk(path) { status, packageName, code ->
-                                VFService.showToast(
-                                    "App Install Status:- $status/n " +
-                                            "App PackageName:- $packageName/n " +
-                                            "App Install Code:- $code"
-                                )
+                                GlobalScope.launch(Dispatchers.Main) {
+                                    VFService.showToast(getString(R.string.app_updated_successfully))
+                                }
                             }
                         } else {
                             hideProgress()
@@ -494,6 +489,7 @@ class MainActivity : BaseActivity(), IFragmentRequest,
 
     //region=========================Auto Install Apk Execution Code:-
     fun autoInstallApk(filePath: String?, apkInstallCB: (Boolean, String, Int) -> Unit) {
+        showProgress(getString(R.string.please_wait_aaplication_is_configuring_updates))
         if (systemManager != null && !TextUtils.isEmpty(filePath)) {
             try {
                 systemManager.installApp(
@@ -501,19 +497,23 @@ class MainActivity : BaseActivity(), IFragmentRequest,
                         @Throws(RemoteException::class)
                         override fun onInstallFinished(packageName: String, returnCode: Int) {
                             Log.d("ReturnCode:- ", returnCode.toString())
+                            hideProgress()
                             apkInstallCB(true, packageName, returnCode)
                         }
                     },
-                    this.packageManager?.getPackageInfo(this.packageName, 0).toString()
+                    "com.example.verifonevx990app"
                 )
             } catch (e: RemoteException) {
                 e.printStackTrace()
+                hideProgress()
                 apkInstallCB(true, "", 500)
             } catch (ex: java.lang.Exception) {
                 Log.d(TAG, ex.printStackTrace().toString())
+                hideProgress()
                 apkInstallCB(true, "", 500)
             }
         } else {
+            hideProgress()
             runOnUiThread {
                 VFService.showToast("Something went wrong!!!")
             }
