@@ -1231,18 +1231,19 @@ class VFTransactionActivity : BaseActivity() {
                 cardProcessedData.setTransactionAmount(emiSelectedTransactionAmount ?: 0L)
 
                 //region===============Check Transaction Type and Perform Action Accordingly:-
-                if (cardProcessedData.getReadCardType() == DetectCardType.MAG_CARD_TYPE) {
+                if (cardProcessedData.getReadCardType() == DetectCardType.MAG_CARD_TYPE &&
+                    cardProcessedData.getTransType() != TransactionType.TEST_EMI.type
+                ) {
                     val isPin = cardProcessedData.getIsOnline() == 1
                     cardProcessedData.setProcessingCode(transactionProcessingCode)
                     processSwipeCardWithPINorWithoutPIN(isPin, cardProcessedData)
                 } else {
                     if (cardProcessedData.getTransType() == TransactionType.TEST_EMI.type) {
-                        {
-                            VFService.showToast("Connect to BH_HOST1...")
-                            Log.e("WWW", "-----")
-                            cardProcessedData.setTransactionAmount(100)
-                            DoEmv(
-                                this, pinHandler, cardProcessedData,
+                        VFService.showToast("Connect to BH_HOST1...")
+                        Log.e("WWW", "-----")
+                        cardProcessedData.setTransactionAmount(100)
+                        DoEmv(
+                            this, pinHandler, cardProcessedData,
                                 ConstIPBOC.startEMV.intent.VALUE_cardType_smart_card
                             ) { cardProcessedDataModal ->
                                 cardProcessedDataModal.setProcessingCode(transactionProcessingCode)
@@ -1269,8 +1270,6 @@ class VFTransactionActivity : BaseActivity() {
                                 }
                                 //Below Different Type of Transaction check Based ISO Packet Generation happening:-
                                 processAccordingToCardType(cardProcessedDataModal)
-
-                            }
                         }
                     } else {
                         DoEmv(

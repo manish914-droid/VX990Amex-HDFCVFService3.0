@@ -281,7 +281,8 @@ class ProcessCard(
                                                         isPin, cardProcessedDataModal
                                                     )
                                                     TransactionType.EMI_SALE.type,
-                                                    TransactionType.BRAND_EMI.type -> {
+                                                    TransactionType.BRAND_EMI.type,
+                                                    TransactionType.TEST_EMI.type -> {
                                                         //region==========Implementing Scheme and Offer:-
                                                         cardProcessedDataModal.setEmiTransactionAmount(
                                                             transactionalAmt
@@ -354,7 +355,8 @@ class ProcessCard(
                                                     isPin, cardProcessedDataModal
                                                 )
                                                 TransactionType.EMI_SALE.type,
-                                                TransactionType.BRAND_EMI.type -> {
+                                                TransactionType.BRAND_EMI.type,
+                                                TransactionType.TEST_EMI.type -> {
                                                     cardProcessedDataModal.setEmiTransactionAmount(
                                                         transactionalAmt
                                                     )
