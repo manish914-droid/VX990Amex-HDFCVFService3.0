@@ -74,7 +74,8 @@ enum class UiAction(val tvalue: Int = 0, val title: String = "") {
     PRE_AUTH_COMPLETE(title = "Pre Auth Complete"), EMI_ENQUIRY(title = "Emi Enquiry"), BRAND_EMI(
         title = "Brand EMI"
     ),
-    TEST_EMI(title = "Test EMI")
+    TEST_EMI(title = "Test EMI"),
+    FLEXI_PAY(title = "Flexi Pay")
 }
 
 
@@ -1247,6 +1248,34 @@ fun getEncryptedField57DataForOfflineSale(
         return Utility.byte2HexStr(encryptedByteArrray)
     } else return "TRACK57_LENGTH<8"
 }
+
+
+fun getEncryptedPan(panNumber: String): String {
+    val encryptedByteArray: ByteArray?
+
+    var dataDescription = "02|$panNumber"
+    val dataLength = dataDescription.length
+    val DIGIT_8 = 8
+    if (dataLength > DIGIT_8) {
+        val mod = dataLength % DIGIT_8
+        if (mod != 0) {
+            val padding = DIGIT_8 - mod
+            val totalLength = dataLength + padding
+            dataDescription = addPad(dataDescription, " ", totalLength, false)
+        }
+        logger("Field 56", " -->$dataDescription", "e")
+        val byteArray = dataDescription.toByteArray(StandardCharsets.ISO_8859_1)
+        encryptedByteArray = VFService.vfPinPad?.encryptTrackData(0, 2, byteArray)
+        /*println(
+            "Track 2 with encryption in manual sale is --->" + Utility.byte2HexStr(
+                encryptedByteArray
+            )
+        )*/
+        return Utility.byte2HexStr(encryptedByteArray)
+    } else return "TRACK57_LENGTH<8"
+
+}
+
 
 fun isNullOrEmpty(str: String?): Boolean {
     if (str != null && !str.isEmpty())

@@ -9,6 +9,7 @@ import android.util.Log
 import com.example.verifonevx990app.R
 import com.example.verifonevx990app.bankemi.EMISchemeAndOfferActivity
 import com.example.verifonevx990app.bankemi.GenericEMISchemeAndOffer
+import com.example.verifonevx990app.crosssell.FlexiPayReqSentServerAndParseData
 import com.example.verifonevx990app.main.DetectCardType
 import com.example.verifonevx990app.main.DetectError
 import com.example.verifonevx990app.main.MainActivity
@@ -552,6 +553,71 @@ class ProcessCard(
                                                             null,
                                                             activity.getString(R.string.error),
                                                             hostResponseCodeAndMessage.second,
+                                                            false,
+                                                            activity.getString(R.string.positive_button_ok),
+                                                            {
+                                                                (activity as VFTransactionActivity).declinedTransaction()
+                                                            },
+                                                            {})
+                                                    }
+
+                                                }
+                                            }
+                                        }
+                                    })
+                            }
+
+                            TransactionType.FLEXI_PAY.type -> {
+                                //region=========This Field is use only in case of flexipay Field58 Transaction Amount:-
+                                cardProcessedDataModal.setFlexiPayTransactionAmount(transactionalAmt)
+                                //endregion
+                                iemv?.startEMV(
+                                    ConstIPBOC.startEMV.processType.full_process,
+                                    Bundle(),
+                                    GenericReadCardData(activity, iemv) { cardBinValue ->
+                                        /*iemv?.stopCheckCard()
+                                        iemv?.abortEMV()*/
+                                        val panEncypted = getEncryptedPan(cardBinValue)
+                                        Log.e(
+                                            "FLEXI PAY",
+                                            "CARD BIN ------->> $cardBinValue   ========= ENCHRypted  --->  $panEncypted"
+                                        )
+                                        //  cardProcessedDataModal.setTrack2Data(Utility.byte2HexStr(encryptedTrack2ByteArray))
+                                        if (!TextUtils.isEmpty(panEncypted)) {
+                                            /*GlobalScope.launch(Dispatchers.Main) { (activity as VFTransactionActivity).showProgress();iemv?.stopCheckCard() }*/
+                                            FlexiPayReqSentServerAndParseData(
+                                                panEncypted,
+                                                activity,
+                                                cardProcessedDataModal,
+                                                transactionalAmt.toString()
+                                            ) { flexiPayData, isSucess, hostMsg ->
+                                                GlobalScope.launch(Dispatchers.Main) {
+                                                    if (isSucess) {
+                                                        (activity as VFTransactionActivity).startActivityForResult(
+                                                            Intent(
+                                                                activity,
+                                                                EMISchemeAndOfferActivity::class.java
+                                                            ).apply {
+                                                                putParcelableArrayListExtra(
+                                                                    "flexiPayData",
+                                                                    flexiPayData as ArrayList<out Parcelable>
+                                                                )
+
+                                                                putExtra(
+                                                                    "cardProcessedData",
+                                                                    cardProcessedDataModal
+                                                                )
+                                                            },
+                                                            EIntentRequest.FlexiPaySchemeOffer.code
+                                                        )
+                                                        (activity as VFTransactionActivity).hideProgress()
+                                                    } else {
+                                                        (activity as VFTransactionActivity).hideProgress()
+                                                        (activity as VFTransactionActivity).alertBoxWithAction(
+                                                            null,
+                                                            null,
+                                                            activity.getString(R.string.error),
+                                                            hostMsg,
                                                             false,
                                                             activity.getString(R.string.positive_button_ok),
                                                             {

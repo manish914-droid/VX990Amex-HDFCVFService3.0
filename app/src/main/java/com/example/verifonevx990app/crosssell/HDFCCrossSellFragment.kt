@@ -11,7 +11,12 @@ import com.example.verifonevx990app.R
 import com.example.verifonevx990app.databinding.CrossSellViewBinding
 
 import com.example.verifonevx990app.main.MainActivity
+import com.example.verifonevx990app.main.SubHeaderTitle
+import com.example.verifonevx990app.realmtables.EDashboardItem
+import com.example.verifonevx990app.transactions.NewInputAmountFragment
 import com.example.verifonevx990app.vxUtils.BHButton
+import com.example.verifonevx990app.vxUtils.VFService
+import com.example.verifonevx990app.vxUtils.checkInternetConnection
 
 class HDFCCrossSellFragment : Fragment(R.layout.cross_sell_view) {
     private val title: String by lazy { arguments?.getString(MainActivity.INPUT_SUB_HEADING) ?: "" }
@@ -62,8 +67,16 @@ class HDFCCrossSellFragment : Fragment(R.layout.cross_sell_view) {
         //region Attaching Click Events START==========
         backImageButton?.setOnClickListener { parentFragmentManager.popBackStackImmediate() }
 
-        backImageButton?.setOnClickListener {
-
+        flexiPayBtn?.setOnClickListener {
+            if (checkInternetConnection()) {
+                (activity as MainActivity).inflateInputFragment(
+                    NewInputAmountFragment(),
+                    SubHeaderTitle.Flexi_PAY.title,
+                    EDashboardItem.FLEXI_PAY
+                )
+            } else {
+                VFService.showToast(getString(R.string.no_internet_available_please_check_your_internet))
+            }
 
         }
         hdfcCreditCard?.setOnClickListener {

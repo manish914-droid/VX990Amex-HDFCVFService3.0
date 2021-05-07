@@ -25,8 +25,8 @@
         android:supportsRtl="true"
         android:theme="@style/VxAppThemeNoActionBar"
         tools:targetApi="q">
-        <activity android:name=".merchantPromo.AddCustomerActivity"></activity>
-        <activity android:name=".bankEmiEnquiry.EMiEnquiryOnPosActivity" />
+
+    <activity android:name=".bankEmiEnquiry.EMiEnquiryOnPosActivity" />
         <activity
             android:name=".utils.printerUtils.PrinterActivity"
             android:theme="@style/Theme.AppCompat.Transparent.NoActionBar" />

@@ -102,6 +102,7 @@ enum class TransactionType(
     BRAND_EMI(33, ProcessingCode.BRAND_EMI, "BRAND EMI"),
     TEST_EMI(34, ProcessingCode.BRAND_EMI, "TEST EMI"),
     BRAND_EMI_BY_ACCESS_CODE(35, ProcessingCode.BRAND_EMI, "BRAND EMI BY ACCESS CODE"),
+    FLEXI_PAY(36, ProcessingCode.FLEXI_PAY, "FLEXI PAY"),
 }
 
 
@@ -167,6 +168,7 @@ enum class ProcessingCode(val code: String) {
     SEND_PROMO("980600"),
     ON_PAYMENT_PROMO("980600"),
     PROMO_REPORT("980700"),
+    FLEXI_PAY("982002"),
 
 
 }

@@ -1244,32 +1244,32 @@ class VFTransactionActivity : BaseActivity() {
                         cardProcessedData.setTransactionAmount(100)
                         DoEmv(
                             this, pinHandler, cardProcessedData,
-                                ConstIPBOC.startEMV.intent.VALUE_cardType_smart_card
-                            ) { cardProcessedDataModal ->
-                                cardProcessedDataModal.setProcessingCode(transactionProcessingCode)
-                                cardProcessedDataModal.setTransactionAmount(100)
-                                cardProcessedDataModal.setOtherAmount(otherTransAmount)
-                                cardProcessedDataModal.setMobileBillExtraData(
-                                    Pair(
-                                        mobileNumber,
-                                        billNumber
-                                    )
+                            ConstIPBOC.startEMV.intent.VALUE_cardType_smart_card
+                        ) { cardProcessedDataModal ->
+                            cardProcessedDataModal.setProcessingCode(transactionProcessingCode)
+                            cardProcessedDataModal.setTransactionAmount(100)
+                            cardProcessedDataModal.setOtherAmount(otherTransAmount)
+                            cardProcessedDataModal.setMobileBillExtraData(
+                                Pair(
+                                    mobileNumber,
+                                    billNumber
                                 )
-                                //    localCardProcessedData.setTransType(transactionType)
-                                globalCardProcessedModel = cardProcessedDataModal
-                                Log.d("CardProcessedData:- ", Gson().toJson(cardProcessedDataModal))
-                                val maskedPan = cardProcessedDataModal.getPanNumberData()?.let {
-                                    getMaskedPan(TerminalParameterTable.selectFromSchemeTable(), it)
-                                }
-                                runOnUiThread {
-                                    binding?.atCardNoTv?.text = maskedPan
-                                    cardView_l.visibility = View.VISIBLE
-                                    tv_card_number_heading.visibility = View.VISIBLE
-                                    tv_insert_card.visibility = View.INVISIBLE
-                                    binding?.paymentGif?.visibility = View.INVISIBLE
-                                }
-                                //Below Different Type of Transaction check Based ISO Packet Generation happening:-
-                                processAccordingToCardType(cardProcessedDataModal)
+                            )
+                            //    localCardProcessedData.setTransType(transactionType)
+                            globalCardProcessedModel = cardProcessedDataModal
+                            Log.d("CardProcessedData:- ", Gson().toJson(cardProcessedDataModal))
+                            val maskedPan = cardProcessedDataModal.getPanNumberData()?.let {
+                                getMaskedPan(TerminalParameterTable.selectFromSchemeTable(), it)
+                            }
+                            runOnUiThread {
+                                binding?.atCardNoTv?.text = maskedPan
+                                cardView_l.visibility = View.VISIBLE
+                                tv_card_number_heading.visibility = View.VISIBLE
+                                tv_insert_card.visibility = View.INVISIBLE
+                                binding?.paymentGif?.visibility = View.INVISIBLE
+                            }
+                            //Below Different Type of Transaction check Based ISO Packet Generation happening:-
+                            processAccordingToCardType(cardProcessedDataModal)
                         }
                     } else {
                         DoEmv(
@@ -1306,7 +1306,12 @@ class VFTransactionActivity : BaseActivity() {
                     }
                 }
             }
-            //endregion
+
+
+            EIntentRequest.FlexiPaySchemeOffer.code -> {
+
+
+            }
         }
     }
 

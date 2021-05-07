@@ -1,6 +1,5 @@
 package com.example.verifonevx990app.crosssell
 
-import android.app.AlertDialog
 import android.app.Dialog
 import android.content.Intent
 import android.graphics.Color
@@ -15,6 +14,7 @@ import android.view.WindowManager
 import android.widget.*
 import androidx.fragment.app.Fragment
 import com.example.verifonevx990app.R
+import com.example.verifonevx990app.databinding.EnterOtpDialogBinding
 import com.example.verifonevx990app.databinding.FragmentInitiateCrossSellProcessBinding
 import com.example.verifonevx990app.main.MainActivity
 import com.example.verifonevx990app.utils.printerUtils.PrintUtil
@@ -169,10 +169,11 @@ class InitiateCrossSellProcessFragment : Fragment(R.layout.fragment_initiate_cro
 
     //Below method is used to show enter OTP dialog:-
     private fun enterOTPDialog() {
-        val dialog = AlertDialog.Builder(requireActivity()).create()
+        val dialog = androidx.appcompat.app.AlertDialog.Builder(requireActivity()).create()
         dialog.setCancelable(false)
-        dialog.setContentView(R.layout.enter_otp_dialog)
-        mCountDown = getCountDownTimer(otpExpireTime, dialog)
+        val bindingg = EnterOtpDialogBinding.inflate(LayoutInflater.from(activity))
+        dialog.setView(bindingg.root)
+        mCountDown = getCountDownTimer(otpExpireTime, bindingg, dialog)
         mCountDown?.start()
         dialog.window?.attributes?.windowAnimations = R.style.DialogAnimation
         val window = dialog.window
@@ -181,9 +182,9 @@ class InitiateCrossSellProcessFragment : Fragment(R.layout.fragment_initiate_cro
             WindowManager.LayoutParams.WRAP_CONTENT
         )
 
-        val otpET = dialog.findViewById<BHEditText>(R.id.otpET)
-        val closeDialogIMG = dialog.findViewById<ImageView>(R.id.closeDialogIMG)
-        val otpSubmitBTN = dialog.findViewById<BHButton>(R.id.otpSubmitBTN)
+        val otpET = bindingg.otpET
+        val closeDialogIMG = bindingg.closeDialogIMG
+        val otpSubmitBTN = bindingg.otpSubmitBTN
 
         closeDialogIMG.setOnClickListener {
             mCountDown?.cancel()
@@ -497,11 +498,11 @@ class InitiateCrossSellProcessFragment : Fragment(R.layout.fragment_initiate_cro
     }
 
     private fun getCountDownTimer(
-        secondsInLong: Long,
+        secondsInLong: Long, dialogBinding: EnterOtpDialogBinding,
         dialog: Dialog
     ): CountDownTimer {
         return object : CountDownTimer(secondsInLong, 1000) {
-            val expTime = dialog.findViewById<BHTextView>(R.id.expireTime)
+            val expTime = dialogBinding.expireTime
             override fun onTick(millisUntilFinished: Long) {
                 if (millisUntilFinished < 20000) {
 

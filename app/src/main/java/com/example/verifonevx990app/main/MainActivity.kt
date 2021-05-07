@@ -887,6 +887,21 @@ class MainActivity : BaseActivity(), IFragmentRequest,
                     }
                 })
             }
+
+            UiAction.FLEXI_PAY -> {
+                if (checkInternetConnection()) {
+                    val amt = (data as Pair<*, *>).first.toString()
+                    // val otherAmount = data.second.toString()
+                    startActivityForResult(Intent(this, VFTransactionActivity::class.java).apply {
+                        putExtra("amt", amt)
+                        putExtra("type", TransactionType.FLEXI_PAY.type)
+                        putExtra("proc_code", ProcessingCode.FLEXI_PAY.code)
+                    }, EIntentRequest.TRANSACTION.code)
+                } else {
+                    VFService.showToast(getString(R.string.no_internet_available_please_check_your_internet))
+                }
+            }
+
             else -> {
             }
         }
@@ -1968,6 +1983,7 @@ enum class SubHeaderTitle(val title: String) {
     Brand_EMI("Brand EMI Sale"),
     Brand_EMI_BY_ACCESS_CODE("Brand EMI By Access Code"),
     TEST_EMI("Test EMI"),
+    Flexi_PAY("Flexi Pay"),
 }
 
 //Below Enum Class is used for Preference Save [String , Int and Boolean] Keys Constant:-

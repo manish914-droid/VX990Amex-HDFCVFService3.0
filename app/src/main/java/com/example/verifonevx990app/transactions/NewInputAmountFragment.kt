@@ -490,6 +490,12 @@ class NewInputAmountFragment : Fragment() {
                         )
                     }
                 }
+                EDashboardItem.FLEXI_PAY -> {
+                    iFrReq?.onFragmentRequest(
+                        UiAction.FLEXI_PAY,
+                        Pair(binding?.saleAmount?.text.toString().trim(), "0")
+                    )
+                }
                 else -> {
                 }
             }

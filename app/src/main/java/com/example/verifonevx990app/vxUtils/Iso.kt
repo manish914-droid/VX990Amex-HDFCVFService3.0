@@ -115,17 +115,56 @@ class IsoField private constructor(fieldNo: Byte, fieldName: String = "",
                 51.toByte() -> IsoField(51)
                 52.toByte() -> IsoField(52, "Pin Block", true, len = 8, fieldType = ISO_FIELD_TYPE.BYTE)
                 53.toByte() -> IsoField(53, "CVV", fieldType = ISO_FIELD_TYPE.LLVR, len = 2)
-                54.toByte() -> IsoField(54, "Additional Amount", fieldType = ISO_FIELD_TYPE.LLVR, len = 2)
+                54.toByte() -> IsoField(
+                    54,
+                    "Additional Amount",
+                    fieldType = ISO_FIELD_TYPE.LLVR,
+                    len = 2
+                )
                 55.toByte() -> IsoField(55, "ICC Data", fieldType = ISO_FIELD_TYPE.LLVR, len = 2)
-                56.toByte() -> IsoField(56, "Previous ROC, Date, Time in Reversal case", fieldType = ISO_FIELD_TYPE.LLVR, len = 1)
-                57.toByte() -> IsoField(57, "Track2 Encripted", fieldType = ISO_FIELD_TYPE.LLVR, len = 2)
-                58.toByte() -> IsoField(58, "Card Indicator and Response Message", fieldType = ISO_FIELD_TYPE.LLVR, len = 2)
-                59.toByte() -> IsoField(59, "RSA Key in Request, Advice in response", fieldType = ISO_FIELD_TYPE.LLVR, len = 2)
+                56.toByte() -> IsoField(
+                    56,
+                    "Previous ROC, Date, Time in Reversal case",
+                    fieldType = ISO_FIELD_TYPE.LLVR,
+                    len = 1
+                )
+                57.toByte() -> IsoField(
+                    57,
+                    "Track2 Encripted",
+                    fieldType = ISO_FIELD_TYPE.LLVR,
+                    len = 2
+                )
+                58.toByte() -> IsoField(
+                    58,
+                    "Card Indicator and Response Message",
+                    fieldType = ISO_FIELD_TYPE.LLVR,
+                    len = 2
+                )
+                59.toByte() -> IsoField(
+                    59,
+                    "RSA Key in Request, Advice in response",
+                    fieldType = ISO_FIELD_TYPE.LLVR,
+                    len = 2
+                )
                 60.toByte() -> IsoField(60, "Batch No", fieldType = ISO_FIELD_TYPE.LLVR, len = 2)
 
-                61.toByte() -> IsoField(61, "Bank Details", fieldType = ISO_FIELD_TYPE.LLVR, len = 2)
+                61.toByte() -> IsoField(
+                    61,
+                    "Bank Details",
+                    fieldType = ISO_FIELD_TYPE.LLVR,
+                    len = 2
+                )
                 62.toByte() -> IsoField(62, "Invoice No", fieldType = ISO_FIELD_TYPE.LLVR, len = 2)
-                63.toByte() -> IsoField(63, "Promo Details", fieldType = ISO_FIELD_TYPE.LLVR, len = 2)
+                63.toByte() -> IsoField(
+                    63,
+                    "Promo Details",
+                    fieldType = ISO_FIELD_TYPE.LLVR,
+                    len = 2
+                )
+
+// below is used to add 56 field with different length
+                //  51.toByte() -> IsoField(56, "Previous ROC, Date, Time in Reversal case", fieldType = ISO_FIELD_TYPE.LLVR, len = 2)
+
                 else -> IsoField()
             }
         }
@@ -387,6 +426,19 @@ class IsoDataWriter : IsoParent(), IWriter,Serializable {
      * */
     override fun addFieldByHex(fieldNo: Byte, data: String) {
         addField(fieldNo, data.str2ByteArr().byteArr2HexStr())
+    }
+
+
+    fun addField56(fieldNo: Byte, data: String) {
+        val iso = IsoField(56, "Encipher pan", fieldType = ISO_FIELD_TYPE.LLVR, len = 2)
+        iso.rawData = if (iso.isFixedLen) {
+            if (data.length < iso.len * 2) addPad(data, "0", iso.len * 2)
+            else data
+        } else {
+            data
+        }
+        activeField.add(fieldNo)
+        isoMap[fieldNo] = iso
     }
 
     override fun addField(fieldNo: Byte, data: ByteArray, isHexType: Boolean) {

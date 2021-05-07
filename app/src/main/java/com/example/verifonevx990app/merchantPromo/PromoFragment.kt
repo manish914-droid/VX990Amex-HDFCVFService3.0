@@ -13,10 +13,10 @@ import com.example.verifonevx990app.main.MainActivity
 class PromoFragment : Fragment(R.layout.cross_sell_view) {
     // Here using the same view as of Cross-sell because of similar UI
     private var promoViewBinding: CrossSellViewBinding? = null
-
     private var redeemPromoBtn: Button? = null
     private var sendPromoBtn: Button? = null
     private var addPromoBtn: Button? = null
+    private var flexiPaybtn: Button? = null
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -32,9 +32,11 @@ class PromoFragment : Fragment(R.layout.cross_sell_view) {
         redeemPromoBtn = promoViewBinding?.hdfcCreditCard
         sendPromoBtn = promoViewBinding?.instaLoan
         addPromoBtn = promoViewBinding?.jumboLoan
+        flexiPaybtn = promoViewBinding?.flexipay
         promoViewBinding?.subHeaderView?.backImageButton?.setOnClickListener { parentFragmentManager.popBackStackImmediate() }
         promoViewBinding?.subHeaderView?.subHeaderText?.text = getString(R.string.bonus_promo)
         promoViewBinding?.reports?.visibility = View.GONE
+        flexiPaybtn?.visibility = View.GONE
 
         redeemPromoBtn?.apply {
             visibility = View.VISIBLE

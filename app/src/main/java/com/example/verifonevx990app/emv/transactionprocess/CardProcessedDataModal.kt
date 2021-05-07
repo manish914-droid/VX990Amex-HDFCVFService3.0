@@ -16,6 +16,7 @@ class CardProcessedDataModal : Serializable {
     private var processingCode: String? = null
     private var transactionAmount: Long? = null
     private var emiTransactionAmount: Long? = null
+    private var flexiPayTransactionAmount: Long? = null
     private var field55: String? = null
     private var isOnline: Int = 0
     private var genratedPinBlock: String? = null
@@ -150,6 +151,15 @@ class CardProcessedDataModal : Serializable {
         this.emiTransactionAmount = emiTransAmount
     }
 
+    fun getFlexiPayTransactionAmount(): Long? {
+        return flexiPayTransactionAmount
+    }
+
+
+    fun setFlexiPayTransactionAmount(flexiPayTransactionAmount: Long) {
+        this.flexiPayTransactionAmount = flexiPayTransactionAmount
+    }
+
     fun setField55(field55: String) {
         this.field55 = field55
     }
@@ -261,6 +271,7 @@ class CardProcessedDataModal : Serializable {
     fun getAuthRoc(): String? {
         return authRoc
     }
+
     fun setAuthBatch(authBatch: String) {
         this.authBatch = authBatch
     }
@@ -276,6 +287,7 @@ class CardProcessedDataModal : Serializable {
     fun getAuthTid(): String? {
         return authTid
     }
+
     fun setEncryptedPan(encryptedPan: String) {
         this.encryptedPan = encryptedPan
     }
@@ -329,12 +341,13 @@ class CardProcessedDataModal : Serializable {
 
         this.aid = aid
     }
+
     fun getAID(): String? {
 
         return aid
     }
 
-    fun getCardHolderName() : String?{
+    fun getCardHolderName(): String? {
 
         return cardholderName
     }
@@ -391,19 +404,19 @@ class CardProcessedDataModal : Serializable {
         return cardlabel
     }
 
-    fun getEmiType() : Int{
+    fun getEmiType(): Int {
         return emitype
     }
 
     fun setEmiType(emitype: Int) {
-       this.emitype = emitype
+        this.emitype = emitype
     }
 
-    fun getMobileBillExtraData() : Pair<String , String>?{
+    fun getMobileBillExtraData(): Pair<String, String>? {
         return mobileBillExtraData
     }
 
-    fun setMobileBillExtraData(mobileBillExtraData : Pair<String , String>){
+    fun setMobileBillExtraData(mobileBillExtraData: Pair<String, String>) {
         this.mobileBillExtraData = mobileBillExtraData
     }
 }

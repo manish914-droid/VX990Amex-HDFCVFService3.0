@@ -333,5 +333,6 @@ enum class EIntentRequest(val code: Int) {
     EMI_ENQUIRY(101),
     GALLERY(2000),
     PRINTINGRECEIPT(102),
-    BankEMISchemeOffer(106)
+    BankEMISchemeOffer(106),
+    FlexiPaySchemeOffer(107),
 }
